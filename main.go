@@ -1,12 +1,13 @@
 package main
 
 import (
-	"awesomeProject/Dom"
+	"awesomeProject/HOM"
 	"awesomeProject/consoleRenderer"
+	"encoding/json"
 	"fmt"
-
 	"github.com/mattn/go-runewidth"
 	"github.com/nsf/termbox-go"
+	"log"
 )
 
 type key struct {
@@ -694,18 +695,42 @@ func dispatch_press(ev *termbox.Event) {
 	}
 }
 
-func main() {
+func PrettyStruct(data interface{}) (string, error) {
+	val, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		return "", err
+	}
+	return string(val), nil
+}
 
-	domElement := Dom.NewDomElement(
-		Dom.Style{
-			Width:           20,
-			Height:          10,
-			Y:               10,
-			X:               20,
-			VerticalContent: Dom.VerticalContentTop,
-			AlignContent:    Dom.AlignContentCenter,
-		}, "hello, hello, hello hello, hello, hello hello, hello", nil,
+func printHOMTree(Element HOM.Element) {
+	res, err := PrettyStruct(Element)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res)
+}
+
+var longText = "\nLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! 	Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! 	Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero!"
+var text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero!"
+
+func main() {
+	newHandOfMidas := HOM.NewHandOfMidas(100, 20)
+
+	domElement := HOM.NewDomElement(
+		&HOM.Style{
+			PaddingRight:    5,
+			PaddingLeft:     5,
+			PaddingTop:      2,
+			PaddingBottom:   2,
+			VerticalContent: HOM.VerticalContentCenter,
+			AlignContent:    HOM.AlignContentCenter,
+		}, &HOM.Text{Value: longText}, nil,
 	)
+
+	newHandOfMidas.PreprocessTree(domElement)
+
+	printHOMTree(*domElement)
 
 	err := termbox.Init()
 	if err != nil {

@@ -1,153 +1,172 @@
 package consoleRenderer
 
 import (
-	"awesomeProject/Dom"
+	"awesomeProject/HOM"
 	"github.com/nsf/termbox-go"
-	"strings"
 )
 
-type TextRenderer struct {
-	alignContent    Dom.AlignContent
-	verticalContent Dom.VerticalContent
+type textRenderer struct {
+	alignContent     HOM.AlignContent
+	verticalContent  HOM.VerticalContent
+	topX             int
+	topY             int
+	height           int
+	width            int
+	botY             int
+	botX             int
+	normalizedHeight int
+}
+
+type NewTextRendererParams struct {
+	alignContent    HOM.AlignContent
+	verticalContent HOM.VerticalContent
+	topX            int
+	topY            int
+	height          int
+	width           int
+	paddingBottom   int
+	paddingTop      int
+	paddingLeft     int
+	paddingRight    int
+}
+
+func NewTextRenderer(params NewTextRendererParams) *textRenderer {
+	return &textRenderer{
+		alignContent:     params.alignContent,
+		verticalContent:  params.verticalContent,
+		height:           params.height,
+		normalizedHeight: params.height - params.paddingBottom,
+		topX:             params.topX,
+		topY:             params.topY + params.paddingTop,
+		botY:             params.topY + params.height - params.paddingBottom,
+		//может rightX
+		botX:  params.topX + params.width,
+		width: params.width,
+	}
 }
 
 //todo termbox.SetCell можно внести
 //todo сделать text рендерер независимым от termbox
+//todo рефакторинг
 
-func (textRenderer *TextRenderer) renderText(element Dom.Element) {
-	topLeftX := element.Style.X
-	topLeftY := element.Style.Y
+func (tr *textRenderer) renderText(element HOM.Element) {
+	//normalizedHeight := element.Style.Height - element.Style.PaddingTop - element.Style.PaddingBottom
 
-	bottomLeftY := topLeftY + element.Style.Height
-	bottomRightX := element.Style.X + element.Style.Width
-
-	if textRenderer.isLeftTopAlign() {
-		textRenderer.handleSplitTextLeftSide(topLeftX+1, topLeftY+1, topLeftY, element)
+	if tr.isLeftTopAlign() {
+		for textIndex, spitText := range element.Text.SplitText {
+			for i, textItem := range spitText {
+				termbox.SetCell(tr.topX+1+i, tr.topY+1+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+			}
+		}
 	}
 
-	if textRenderer.isCenterLeftAlign() {
+	if tr.isCenterLeftAlign() {
 		//todo внести в отдельную функцию
-		splitText := textRenderer.splitLongText(element.Style.Width, element.Text)
-		centerPositionY := (topLeftY+bottomLeftY)/2 - len(splitText)/2
+		centerPositionY := (tr.topY+tr.botY)/2 - len(element.Text.SplitText)/2
 
-		for textIndex, spitText := range splitText {
-			if centerPositionY+textIndex >= topLeftY+element.Style.Height {
-				break
-			}
-
+		for textIndex, spitText := range element.Text.SplitText {
 			for i, textItem := range spitText {
-				termbox.SetCell(topLeftX+1+i, centerPositionY+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCell(tr.topX+1+i, centerPositionY+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
-	if textRenderer.isLeftBottomAlign() {
-		for textIndex, spitText := range textRenderer.splitLongText(element.Style.Width, element.Text) {
-			if bottomLeftY-1+textIndex >= topLeftY+element.Style.Height {
-				break
-			}
+	if tr.isLeftBottomAlign() {
+		for textIndex, spitText := range element.Text.SplitText {
 			for i, textItem := range spitText {
-				termbox.SetCell(topLeftX+1+i, bottomLeftY-1+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCell(tr.topX+1+i, tr.botY-1+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
-	if textRenderer.isRightTopAlign() {
-		for textIndex, spitText := range textRenderer.splitLongText(element.Style.Width, element.Text) {
-			if topLeftY+1+textIndex >= topLeftY+element.Style.Height {
-				break
+	if tr.isRightTopAlign() {
+		for textIndex, spitText := range element.Text.SplitText {
+			textLength := len(spitText) - 1
+
+			for i := textLength; i >= 0; i-- {
+				termbox.SetCell(tr.botX-1-i, tr.topY+1+textIndex, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
+		}
+	}
+
+	if tr.isCenterRightAlign() {
+		splitTextLength := len(element.Text.SplitText)
+
+		for textIndex, spitText := range element.Text.SplitText {
+			centerPositionY := (tr.topY+tr.botY)/2 - splitTextLength/2
 
 			textLength := len(spitText) - 1
 
 			for i := textLength; i >= 0; i-- {
-				termbox.SetCell(bottomRightX-1-i, topLeftY+1+textIndex, rune(element.Text[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCell(tr.botX-1-i, centerPositionY+textIndex, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
-	if textRenderer.isCenterRightAlign() {
-		splitText := textRenderer.splitLongText(element.Style.Width, element.Text)
-		splitTextLength := len(splitText)
-
-		for textIndex, spitText := range splitText {
-			centerPositionY := (topLeftY+bottomLeftY)/2 - splitTextLength/2
-
-			if centerPositionY+textIndex >= topLeftY+element.Style.Height {
-				break
-			}
+	if tr.isRightBottomAlign() {
+		for textIndex, spitText := range element.Text.SplitText {
 
 			textLength := len(spitText) - 1
 
 			for i := textLength; i >= 0; i-- {
-				termbox.SetCell(bottomRightX-1-i, centerPositionY+textIndex, rune(element.Text[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCell(tr.botX-1-i, tr.botY-1+textIndex, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
-	if textRenderer.isRightBottomAlign() {
-		for textIndex, spitText := range textRenderer.splitLongText(element.Style.Width, element.Text) {
-			if bottomLeftY-1+textIndex >= topLeftY+element.Style.Height {
+	if tr.isCenterTopAlign() {
+		for textIndex, splitText := range element.Text.SplitText {
+			y := tr.topY + 1 + textIndex
+
+			if y >= tr.normalizedHeight {
 				break
 			}
 
-			textLength := len(spitText) - 1
+			centerByX := tr.computeCenterX(len(splitText) - 1)
 
-			for i := textLength; i >= 0; i-- {
-				termbox.SetCell(bottomRightX-1-i, bottomLeftY-1+textIndex, rune(element.Text[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+			for i, textItem := range splitText {
+				termbox.SetCell(centerByX+i, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
+			}
+		}
+
+	}
+
+	if tr.isCenterBottomAlign() {
+		length := len(element.Text.SplitText)
+
+		for textIndex, splitText := range element.Text.SplitText {
+			y := tr.botY - length + textIndex
+
+			if y <= tr.topY {
+				continue
+			}
+
+			centerByX := tr.computeCenterX(len(splitText) - 1)
+
+			for i, textItem := range splitText {
+				termbox.SetCell(centerByX+i, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
-	if textRenderer.isCenterTopAlign() {
+	if tr.isCenterCenterAlign() {
+		centerPositionY := tr.computeCenterY(len(element.Text.SplitText) - 1)
 
-		for textIndex, spitText := range textRenderer.splitLongText(element.Style.Width, element.Text) {
-			if topLeftY+1+textIndex >= topLeftY+element.Style.Height {
-				break
+		for textIndex, spitText := range element.Text.SplitText {
+			y := centerPositionY + textIndex
+
+			if y >= tr.botY {
+				continue
 			}
 
-			textLength := len(spitText) - 1
+			if y <= tr.topY {
+				continue
+			}
 
-			startPosition := (element.Style.X + (element.Style.Width / 2)) - textLength/2
+			startPosition := tr.computeCenterX(len(spitText) - 1)
 
 			for i, textItem := range spitText {
-				termbox.SetCell(startPosition+i, topLeftY+1+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
-			}
-		}
-
-	}
-
-	if textRenderer.isCenterBottomAlign() {
-		for textIndex, spitText := range textRenderer.splitLongText(element.Style.Width, element.Text) {
-			if bottomLeftY-1+textIndex >= topLeftY+element.Style.Height {
-				break
-			}
-
-			textLength := len(spitText) - 1
-
-			startPosition := (element.Style.X + (element.Style.Width / 2)) - textLength/2
-
-			for i, textItem := range spitText {
-				termbox.SetCell(startPosition+i, bottomLeftY-1, textItem, termbox.ColorWhite, termbox.ColorBlack)
-			}
-		}
-	}
-
-	if textRenderer.isCenterCenterAlign() {
-		splitText := textRenderer.splitLongText(element.Style.Width, element.Text)
-		centerPositionY := (topLeftY+bottomLeftY)/2 - len(splitText)/2
-
-		for textIndex, spitText := range splitText {
-			if centerPositionY+textIndex >= topLeftY+element.Style.Height {
-				break
-			}
-
-			textLength := len(spitText) - 1
-
-			startPosition := (element.Style.X + (element.Style.Width / 2)) - textLength/2
-
-			for i, textItem := range spitText {
-				termbox.SetCell(startPosition+i, centerPositionY+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCell(startPosition+i, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 
@@ -159,83 +178,59 @@ func TextIsNotEmpty(text string) bool {
 }
 
 // todo заменить назвение center на middle чтобы не путаться
-func (textRenderer *TextRenderer) isLeftTopAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentLeft && textRenderer.verticalContent == Dom.VerticalContentTop
+func (tr *textRenderer) isLeftTopAlign() bool {
+	return tr.alignContent == HOM.AlignContentLeft && tr.verticalContent == HOM.VerticalContentTop
 }
 
-func (textRenderer *TextRenderer) isCenterLeftAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentLeft && textRenderer.verticalContent == Dom.VerticalContentCenter
+func (tr *textRenderer) isCenterLeftAlign() bool {
+	return tr.alignContent == HOM.AlignContentLeft && tr.verticalContent == HOM.VerticalContentCenter
 }
 
-func (textRenderer *TextRenderer) isRightTopAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentRight && textRenderer.verticalContent == Dom.VerticalContentTop
+func (tr *textRenderer) isRightTopAlign() bool {
+	return tr.alignContent == HOM.AlignContentRight && tr.verticalContent == HOM.VerticalContentTop
 }
 
-func (textRenderer *TextRenderer) isLeftBottomAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentLeft && textRenderer.verticalContent == Dom.VerticalContentBottom
+func (tr *textRenderer) isLeftBottomAlign() bool {
+	return tr.alignContent == HOM.AlignContentLeft && tr.verticalContent == HOM.VerticalContentBottom
 }
 
-func (textRenderer *TextRenderer) isCenterRightAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentRight && textRenderer.verticalContent == Dom.VerticalContentCenter
+func (tr *textRenderer) isCenterRightAlign() bool {
+	return tr.alignContent == HOM.AlignContentRight && tr.verticalContent == HOM.VerticalContentCenter
 }
 
-func (textRenderer *TextRenderer) isRightBottomAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentRight && textRenderer.verticalContent == Dom.VerticalContentBottom
+func (tr *textRenderer) isRightBottomAlign() bool {
+	return tr.alignContent == HOM.AlignContentRight && tr.verticalContent == HOM.VerticalContentBottom
 }
 
-func (textRenderer *TextRenderer) isCenterTopAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentCenter && textRenderer.verticalContent == Dom.VerticalContentTop
+func (tr *textRenderer) isCenterTopAlign() bool {
+	return tr.alignContent == HOM.AlignContentCenter && tr.verticalContent == HOM.VerticalContentTop
 }
 
-func (textRenderer *TextRenderer) isCenterBottomAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentCenter && textRenderer.verticalContent == Dom.VerticalContentBottom
+func (tr *textRenderer) isCenterBottomAlign() bool {
+	return tr.alignContent == HOM.AlignContentCenter && tr.verticalContent == HOM.VerticalContentBottom
 }
 
-func (textRenderer *TextRenderer) isCenterCenterAlign() bool {
-	return textRenderer.alignContent == Dom.AlignContentCenter && textRenderer.verticalContent == Dom.VerticalContentCenter
+func (tr *textRenderer) isCenterCenterAlign() bool {
+	return tr.alignContent == HOM.AlignContentCenter && tr.verticalContent == HOM.VerticalContentCenter
 }
 
-// todo разделить по строкам текст, рефткоринг
-
-func (textRenderer *TextRenderer) splitLongText(width int, text string) []string {
-	var splitText []string
-
-	splitStrings := strings.Split(text, " ")
-
-	preparedString := ""
-
-	for index, splitString := range splitStrings {
-		preparedStringLength := len(preparedString + splitString)
-
-		if width <= preparedStringLength {
-			splitText = append(splitText, preparedString)
-			preparedString = ""
-			preparedStringLength = 0
-		}
-
-		if preparedStringLength == 0 || index == 0 {
-			preparedString += splitString
-		} else {
-			preparedString += " " + splitString
-		}
-	}
-
-	if len(preparedString) != 0 {
-		splitText = append(splitText, preparedString)
-	}
-
-	return splitText
+func (tr *textRenderer) computeCenterX(textLength int) int {
+	return (tr.topX + (tr.width / 2)) - textLength/2
 }
 
-func (textRenderer *TextRenderer) handleSplitTextLeftSide(x int, y int, topLeftY int, element Dom.Element) {
-	for textIndex, spitText := range textRenderer.splitLongText(element.Style.Width, element.Text) {
-		if y+textIndex >= topLeftY+element.Style.Height {
-			break
-		}
-
-		for i, textItem := range spitText {
-
-			termbox.SetCell(x+i, y+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
-		}
-	}
+func (tr *textRenderer) computeCenterY(rows int) int {
+	return (tr.topY+tr.botY)/2 - rows/2
 }
+
+//func (textRenderer *textRenderer) handleSplitTextLeftSide(x int, y int, topLeftY int, element HOM.Element) {
+//	for textIndex, spitText := range element.Text.SplitText {
+//		if y+textIndex >= topLeftY+element.Style.Height {
+//			break
+//		}
+//
+//		for i, textItem := range spitText {
+//
+//			termbox.SetCell(x+i, y+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+//		}
+//	}
+//}
