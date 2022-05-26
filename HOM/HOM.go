@@ -90,24 +90,24 @@ func (hom *HandOfMidas) SetSizeWindow(width int, height int) {
 func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	hom.Window.Element = Element
 
-	//if Element.Style.Width == 0 {
-	//	Element.Style.Width = hom.Window.Width
-	//}
-	//
-	//if Element.Style.Height == 0 {
-	//	Element.Style.Height = hom.Window.Height
-	//}
-
-	//todo, возможно, это не должно тут быть
-	//normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight
-
-	if Element.Text != nil {
-		Element.Text.SplitText = SplitLongText(hom.Window.Width, Element.Text.Value)
+	if Element.Style.Width == 0 {
+		Element.Style.Width = hom.Window.Width
 	}
 
-	Element.Style.Width = hom.Window.Width + Element.Style.PaddingLeft + Element.Style.PaddingRight
+	if Element.Style.Height == 0 {
+		Element.Style.Height = hom.Window.Height
+	}
+
+	//todo, возможно, это не должно тут быть
+	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight
+
+	if Element.Text != nil {
+		Element.Text.SplitText = SplitLongText(normalizedWidth, Element.Text.Value)
+	}
+
+	//Element.Style.Width = hom.Window.Width + Element.Style.PaddingLeft + Element.Style.PaddingRight
 	//todo разобрать , где потеряна 1
-	Element.Style.Height = len(Element.Text.SplitText) + Element.Style.PaddingTop + Element.Style.PaddingBottom + 1
+	//Element.Style.Height = len(Element.Text.SplitText) + Element.Style.PaddingTop + Element.Style.PaddingBottom + 1
 
 	//hom.calculateLayout(hom.Window.Width, hom.Window.Height, Element)
 }

@@ -723,9 +723,9 @@ func main() {
 			PaddingLeft:     5,
 			PaddingTop:      2,
 			PaddingBottom:   2,
-			VerticalContent: HOM.VerticalContentCenter,
-			AlignContent:    HOM.AlignContentCenter,
-		}, &HOM.Text{Value: longText}, nil,
+			VerticalContent: HOM.VerticalContentBottom,
+			AlignContent:    HOM.AlignContentRight,
+		}, &HOM.Text{Value: text}, nil,
 	)
 
 	newHandOfMidas.PreprocessTree(domElement)

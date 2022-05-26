@@ -15,6 +15,7 @@ type textRenderer struct {
 	botY             int
 	botX             int
 	normalizedHeight int
+	normalizeTopX    int
 }
 
 type NewTextRendererParams struct {
@@ -36,11 +37,12 @@ func NewTextRenderer(params NewTextRendererParams) *textRenderer {
 		verticalContent:  params.verticalContent,
 		height:           params.height,
 		normalizedHeight: params.height - params.paddingBottom,
+		normalizeTopX:    params.topX + params.paddingLeft,
 		topX:             params.topX,
 		topY:             params.topY + params.paddingTop,
 		botY:             params.topY + params.height - params.paddingBottom,
 		//может rightX
-		botX:  params.topX + params.width,
+		botX:  params.topX + params.width - params.paddingRight,
 		width: params.width,
 	}
 }
@@ -54,27 +56,55 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 
 	if tr.isLeftTopAlign() {
 		for textIndex, spitText := range element.Text.SplitText {
+			y := tr.topY + 1 + textIndex
+
+			if y >= tr.botY {
+				break
+			}
+
 			for i, textItem := range spitText {
-				termbox.SetCell(tr.topX+1+i, tr.topY+1+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+				x := tr.normalizeTopX + 1 + i
+
+				termbox.SetCell(x, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
 	if tr.isCenterLeftAlign() {
-		//todo внести в отдельную функцию
-		centerPositionY := (tr.topY+tr.botY)/2 - len(element.Text.SplitText)/2
+		centerPositionY := tr.computeCenterY(len(element.Text.SplitText) - 1)
 
 		for textIndex, spitText := range element.Text.SplitText {
+			y := centerPositionY + textIndex
+
+			if y >= tr.botY {
+				continue
+			}
+
+			if y <= tr.topY {
+				continue
+			}
+
 			for i, textItem := range spitText {
-				termbox.SetCell(tr.topX+1+i, centerPositionY+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+				x := tr.normalizeTopX + 1 + i
+				termbox.SetCell(x, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
 	if tr.isLeftBottomAlign() {
+		length := len(element.Text.SplitText)
+
 		for textIndex, spitText := range element.Text.SplitText {
+			y := tr.botY - length + textIndex
+
+			if y <= tr.topY {
+				continue
+			}
+
 			for i, textItem := range spitText {
-				termbox.SetCell(tr.topX+1+i, tr.botY-1+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
+				x := tr.normalizeTopX + 1 + i
+
+				termbox.SetCell(x, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
@@ -83,33 +113,60 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 		for textIndex, spitText := range element.Text.SplitText {
 			textLength := len(spitText) - 1
 
+			y := tr.topY + 1 + textIndex
+
+			if y >= tr.normalizedHeight {
+				break
+			}
+
 			for i := textLength; i >= 0; i-- {
-				termbox.SetCell(tr.botX-1-i, tr.topY+1+textIndex, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+
+				x := tr.botX - 1 - i
+
+				termbox.SetCell(x, y, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
 	if tr.isCenterRightAlign() {
-		splitTextLength := len(element.Text.SplitText)
+		centerPositionY := tr.computeCenterY(len(element.Text.SplitText))
 
 		for textIndex, spitText := range element.Text.SplitText {
-			centerPositionY := (tr.topY+tr.botY)/2 - splitTextLength/2
+			y := centerPositionY + textIndex
+
+			if y >= tr.botY {
+				continue
+			}
+
+			if y <= tr.topY {
+				continue
+			}
 
 			textLength := len(spitText) - 1
 
 			for i := textLength; i >= 0; i-- {
-				termbox.SetCell(tr.botX-1-i, centerPositionY+textIndex, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+				x := tr.botX - 1 - i
+				termbox.SetCell(x, y, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
 	if tr.isRightBottomAlign() {
+		length := len(element.Text.SplitText)
+
 		for textIndex, spitText := range element.Text.SplitText {
+
+			y := tr.botY - length + textIndex
+
+			if y <= tr.topY {
+				continue
+			}
 
 			textLength := len(spitText) - 1
 
 			for i := textLength; i >= 0; i-- {
-				termbox.SetCell(tr.botX-1-i, tr.botY-1+textIndex, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+				x := tr.botX - 1 - i
+				termbox.SetCell(x, y, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
