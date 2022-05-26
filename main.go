@@ -723,14 +723,14 @@ func main() {
 			PaddingLeft:     5,
 			PaddingTop:      2,
 			PaddingBottom:   2,
-			VerticalContent: HOM.VerticalContentBottom,
+			VerticalContent: HOM.VerticalContentTop,
 			AlignContent:    HOM.AlignContentRight,
 		}, &HOM.Text{Value: text}, nil,
 	)
 
 	newHandOfMidas.PreprocessTree(domElement)
 
-	printHOMTree(*domElement)
+	//printHOMTree(*domElement)
 
 	err := termbox.Init()
 	if err != nil {

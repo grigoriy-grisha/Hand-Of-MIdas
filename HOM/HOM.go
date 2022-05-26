@@ -46,23 +46,38 @@ type Text struct {
 	SplitText []string
 }
 
+type Coords struct {
+	X int
+	Y int
+}
+
+type Bounding struct {
+	ClientTopLeft     *Coords
+	ClientBottomLeft  *Coords
+	ClientTopRight    *Coords
+	ClientBottomRight *Coords
+	OffsetTopLeft     *Coords
+	OffsetBottomLeft  *Coords
+	OffsetTopRight    *Coords
+	OffsetBottomRight *Coords
+}
+
 type Element struct {
 	Style    *Style
 	Text     *Text
 	Children *Children
 	Parent   *Element
+	Bounding *Bounding
 }
 
 func NewDomElement(Style *Style, Text *Text, Children *Children) *Element {
-	return &Element{Style: Style, Text: Text, Children: Children}
+	element := &Element{Style: Style, Text: Text, Children: Children}
+	element.Bounding = &Bounding{}
+	return element
 }
 
 func (e *Element) GetSize() (int, int) {
 	return e.Style.Width, e.Style.Height
-}
-
-func (e *Element) getPosition() {
-
 }
 
 type Window struct {
@@ -87,6 +102,29 @@ func (hom *HandOfMidas) SetSizeWindow(width int, height int) {
 	hom.Window.Height = height
 }
 
+func (hom *HandOfMidas) computeBounding(Element *Element) {
+	ClientX := Element.Style.X
+	ClientY := Element.Style.Y
+	FullClientY := ClientY + Element.Style.Height
+	FullClientX := ClientX + Element.Style.Width
+
+	Element.Bounding.ClientTopLeft = &Coords{X: ClientX, Y: ClientY}
+	Element.Bounding.ClientBottomLeft = &Coords{X: ClientX, Y: FullClientY}
+	Element.Bounding.ClientTopRight = &Coords{X: FullClientX, Y: ClientY}
+	Element.Bounding.ClientBottomRight = &Coords{X: FullClientX, Y: FullClientY}
+
+	OffsetY := ClientY + Element.Style.PaddingTop
+	OffsetX := ClientX + Element.Style.PaddingLeft
+	FullOffsetY := FullClientY - Element.Style.PaddingBottom
+	FullOffsetX := FullClientX - Element.Style.PaddingRight
+
+	Element.Bounding.OffsetTopLeft = &Coords{X: OffsetX, Y: OffsetY}
+	Element.Bounding.OffsetBottomLeft = &Coords{X: OffsetX, Y: FullOffsetY}
+	Element.Bounding.OffsetTopRight = &Coords{X: FullOffsetX, Y: ClientY}
+	Element.Bounding.OffsetBottomRight = &Coords{X: FullOffsetX, Y: FullOffsetY}
+
+}
+
 func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	hom.Window.Element = Element
 
@@ -97,6 +135,8 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	if Element.Style.Height == 0 {
 		Element.Style.Height = hom.Window.Height
 	}
+
+	hom.computeBounding(Element)
 
 	//todo, возможно, это не должно тут быть
 	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight

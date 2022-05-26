@@ -14,28 +14,26 @@ var borderVertical rune = 0x2500
 
 // todo текст, который не вмещается вообще обрезать
 
+func selectCell(coords *HOM.Coords, border rune) {
+	termbox.SetCell(coords.X, coords.Y, border, termbox.ColorWhite, termbox.ColorBlack)
+}
+
 func RenderElement(element *HOM.Element) {
-	//tood вчислять в в препроцесс
-	topX := element.Style.X
-	topY := element.Style.Y
+	bounding := element.Bounding
 
-	topRightX := topX + element.Style.Width
-	bottomLeftY := topY + element.Style.Height
-	bottomRightX := element.Style.X + element.Style.Width
+	selectCell(bounding.ClientTopLeft, borderTopLeft)
+	selectCell(bounding.ClientBottomLeft, borderBotomLeft)
+	selectCell(bounding.ClientTopRight, borderTopRight)
+	selectCell(bounding.ClientBottomRight, borderBottomRight)
 
-	termbox.SetCell(topX, topY, borderTopLeft, termbox.ColorWhite, termbox.ColorBlack)
-	termbox.SetCell(topRightX, topY, borderTopRight, termbox.ColorWhite, termbox.ColorBlack)
-	termbox.SetCell(topX, bottomLeftY, borderBotomLeft, termbox.ColorWhite, termbox.ColorBlack)
-	termbox.SetCell(bottomRightX, bottomLeftY, borderBottomRight, termbox.ColorWhite, termbox.ColorBlack)
-
-	for i := topY + 1; i < bottomLeftY; i++ {
-		termbox.SetCell(topX, i, borderHorizontal, termbox.ColorWhite, termbox.ColorBlack)
-		termbox.SetCell(bottomRightX, i, borderHorizontal, termbox.ColorWhite, termbox.ColorBlack)
+	for i := bounding.ClientTopLeft.Y + 1; i < bounding.ClientBottomLeft.Y; i++ {
+		termbox.SetCell(bounding.ClientTopLeft.X, i, borderHorizontal, termbox.ColorWhite, termbox.ColorBlack)
+		termbox.SetCell(bounding.ClientBottomRight.X, i, borderHorizontal, termbox.ColorWhite, termbox.ColorBlack)
 	}
 
-	for i := topX + 1; i < bottomRightX; i++ {
-		termbox.SetCell(i, topY, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
-		termbox.SetCell(i, bottomLeftY, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
+	for i := bounding.ClientTopLeft.X + 1; i < bounding.ClientBottomRight.X; i++ {
+		termbox.SetCell(i, bounding.ClientTopLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
+		termbox.SetCell(i, bounding.ClientBottomLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
 	}
 
 	if TextIsNotEmpty(element.Text.Value) {
@@ -45,8 +43,8 @@ func RenderElement(element *HOM.Element) {
 				verticalContent: element.Style.VerticalContent,
 				width:           element.Style.Width,
 				height:          element.Style.Height,
-				topX:            topX,
-				topY:            topY,
+				topX:            bounding.ClientTopLeft.X,
+				topY:            bounding.ClientTopLeft.Y,
 				paddingBottom:   element.Style.PaddingBottom,
 				paddingTop:      element.Style.PaddingTop,
 				paddingLeft:     element.Style.PaddingLeft,

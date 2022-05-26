@@ -53,17 +53,18 @@ func NewTextRenderer(params NewTextRendererParams) *textRenderer {
 
 func (tr *textRenderer) renderText(element HOM.Element) {
 	//normalizedHeight := element.Style.Height - element.Style.PaddingTop - element.Style.PaddingBottom
+	bounding := element.Bounding
 
 	if tr.isLeftTopAlign() {
 		for textIndex, spitText := range element.Text.SplitText {
-			y := tr.topY + 1 + textIndex
+			y := bounding.OffsetTopLeft.Y + 1 + textIndex
 
-			if y >= tr.botY {
+			if y >= bounding.OffsetBottomLeft.Y {
 				break
 			}
 
 			for i, textItem := range spitText {
-				x := tr.normalizeTopX + 1 + i
+				x := bounding.OffsetTopLeft.X + 1 + i
 
 				termbox.SetCell(x, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
@@ -76,16 +77,16 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 		for textIndex, spitText := range element.Text.SplitText {
 			y := centerPositionY + textIndex
 
-			if y >= tr.botY {
+			if y >= bounding.OffsetBottomLeft.Y {
 				continue
 			}
 
-			if y <= tr.topY {
+			if y <= bounding.OffsetTopLeft.Y {
 				continue
 			}
 
 			for i, textItem := range spitText {
-				x := tr.normalizeTopX + 1 + i
+				x := bounding.OffsetBottomLeft.X + 1 + i
 				termbox.SetCell(x, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
@@ -95,14 +96,14 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 		length := len(element.Text.SplitText)
 
 		for textIndex, spitText := range element.Text.SplitText {
-			y := tr.botY - length + textIndex
+			y := bounding.OffsetBottomLeft.Y - length + textIndex
 
-			if y <= tr.topY {
+			if y <= bounding.OffsetTopLeft.Y {
 				continue
 			}
 
 			for i, textItem := range spitText {
-				x := tr.normalizeTopX + 1 + i
+				x := bounding.OffsetTopLeft.X + 1 + i
 
 				termbox.SetCell(x, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
@@ -113,15 +114,15 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 		for textIndex, spitText := range element.Text.SplitText {
 			textLength := len(spitText) - 1
 
-			y := tr.topY + 1 + textIndex
+			y := bounding.OffsetTopLeft.Y + 1 + textIndex
 
-			if y >= tr.normalizedHeight {
+			if y >= bounding.OffsetBottomRight.Y {
 				break
 			}
 
 			for i := textLength; i >= 0; i-- {
 
-				x := tr.botX - 1 - i
+				x := bounding.OffsetBottomRight.X - 1 - i
 
 				termbox.SetCell(x, y, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
