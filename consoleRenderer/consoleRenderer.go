@@ -52,9 +52,8 @@ func RenderElement(element *HOM.Element) {
 	//}
 
 	if element.Children != nil {
-		childrenElement := element.Children.Elements[0]
-		if childrenElement != nil {
-			RenderElement(childrenElement)
+		for _, e := range element.Children.Elements {
+			RenderElement(e)
 		}
 
 		return

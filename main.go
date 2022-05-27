@@ -736,6 +736,15 @@ func main() {
 					&HOM.Text{Value: longText},
 					nil,
 				),
+				HOM.NewDomElement(&HOM.Style{
+					PaddingRight:  5,
+					PaddingLeft:   5,
+					PaddingTop:    2,
+					PaddingBottom: 2,
+				},
+					&HOM.Text{Value: "hello"},
+					nil,
+				),
 			},
 		},
 	)

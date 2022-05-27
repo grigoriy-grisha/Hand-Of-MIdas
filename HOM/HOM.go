@@ -145,35 +145,77 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	if Element.Text != nil {
 		Element.Text.SplitText = SplitLongText(normalizedWidth, Element.Text.Value)
 	}
+	//childrenElement := hom.Window.Element.Children.Elements[0]
+	//
+	//childrenElement.Style.X = hom.Window.Element.Bounding.OffsetTopLeft.X
+	//childrenElement.Style.Y = hom.Window.Element.Bounding.OffsetTopLeft.Y
+	//
+	//if childrenElement.Text != nil {
+	//	childrenElement.Text.SplitText = SplitLongText(normalizedWidth-childrenElement.Style.PaddingLeft-childrenElement.Style.PaddingRight, childrenElement.Text.Value)
+	//}
+	//
+	//if len(childrenElement.Text.SplitText) > 1 {
+	//	childrenElement.Style.Width = normalizedWidth
+	//} else {
+	//	childrenElement.Style.Width = len(childrenElement.Text.SplitText[0]) + 1 + Element.Style.PaddingLeft + Element.Style.PaddingRight
+	//}
+	//
+	//computedHeight := len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
+	//
+	//if computedHeight > normalizedHeight {
+	//	childrenElement.Style.Height = normalizedHeight
+	//} else {
+	//	childrenElement.Style.Height = computedHeight
+	//}
+	//
+	////childrenElement.Style.Height = len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
+	//
+	//hom.computeBounding(childrenElement)
 
-	childrenElement := hom.Window.Element.Children.Elements[0]
-
-	childrenElement.Style.X = hom.Window.Element.Bounding.OffsetTopLeft.X
-	childrenElement.Style.Y = hom.Window.Element.Bounding.OffsetTopLeft.Y
-
-	if childrenElement.Text != nil {
-		childrenElement.Text.SplitText = SplitLongText(normalizedWidth-childrenElement.Style.PaddingLeft-childrenElement.Style.PaddingRight, childrenElement.Text.Value)
+	maxWidth := normalizedWidth / len(hom.Window.Element.Children.Elements)
+	//fmt.Println(maxWidth)
+	prevCoords := &Coords{
+		X: hom.Window.Element.Bounding.OffsetTopLeft.X,
+		Y: hom.Window.Element.Bounding.OffsetTopLeft.Y,
 	}
 
-	if len(childrenElement.Text.SplitText) > 1 {
-		childrenElement.Style.Width = normalizedWidth
-	} else {
-		childrenElement.Style.Width = len(childrenElement.Text.SplitText[0]) + 1
+	for _, element := range hom.Window.Element.Children.Elements {
+		element.Style.X = prevCoords.X
+		element.Style.Y = prevCoords.Y
+
+		if element.Text != nil {
+			element.Text.SplitText = SplitLongText(
+				maxWidth-element.Style.PaddingLeft-element.Style.PaddingRight,
+				element.Text.Value,
+			)
+		}
+
+		// todo тут проверка
+		if len(element.Text.SplitText) > 1 {
+			element.Style.Width = maxWidth
+		} else {
+			element.Style.Width = len(element.Text.SplitText[0]) + 1 + element.Style.PaddingLeft + element.Style.PaddingRight
+		}
+
+		computedHeight := len(element.Text.SplitText) +
+			element.Style.PaddingTop +
+			element.Style.PaddingBottom + 1
+
+		if computedHeight > normalizedHeight {
+			element.Style.Height = normalizedHeight
+		} else {
+			element.Style.Height = computedHeight
+		}
+
+		hom.computeBounding(element)
+
+		prevCoords = &Coords{
+			X: element.Bounding.ClientTopRight.X + 1,
+			Y: element.Bounding.ClientTopRight.Y,
+		}
 	}
 
-	computedHeight := len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
-
-	if computedHeight > normalizedHeight {
-		childrenElement.Style.Height = normalizedHeight
-	} else {
-		childrenElement.Style.Height = computedHeight
-	}
-
-	//childrenElement.Style.Height = len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
-
-	hom.computeBounding(childrenElement)
-
-	//hom.calculateLayout(hom.Window.Width, hom.Window.Height, Element)
+	hom.calculateLayout(hom.Window.Width, hom.Window.Height, Element)
 }
 
 // todo разделить по строкам текст, рефткоринг
