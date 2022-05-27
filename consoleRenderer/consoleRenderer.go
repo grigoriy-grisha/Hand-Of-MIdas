@@ -34,7 +34,7 @@ func RenderElement(element *HOM.Element) {
 		termbox.SetCell(i, bounding.ClientBottomLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
 	}
 
-	if TextIsNotEmpty(element.Text.Value) {
+	if TextIsNotEmpty(element.Text) {
 		textRenderer := NewTextRenderer(
 			NewTextRendererParams{
 				alignContent:    element.Style.AlignContent,
@@ -45,10 +45,19 @@ func RenderElement(element *HOM.Element) {
 		textRenderer.renderText()
 	}
 
-	if element.Children != nil && len(element.Children.Elements) != 0 {
-		for _, elem := range element.Children.Elements {
-			RenderElement(elem)
+	//if element.Children != nil && len(element.Children.Elements) != 0 {
+	//	for _, elem := range element.Children.Elements {
+	//		RenderElement(elem)
+	//	}
+	//}
+
+	if element.Children != nil {
+		childrenElement := element.Children.Elements[0]
+		if childrenElement != nil {
+			RenderElement(childrenElement)
 		}
+
+		return
 	}
 
 }

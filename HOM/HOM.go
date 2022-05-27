@@ -140,14 +140,38 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 
 	//todo, возможно, это не должно тут быть
 	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight
+	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom
 
 	if Element.Text != nil {
 		Element.Text.SplitText = SplitLongText(normalizedWidth, Element.Text.Value)
 	}
 
-	//Element.Style.Width = hom.Window.Width + Element.Style.PaddingLeft + Element.Style.PaddingRight
-	//todo разобрать , где потеряна 1
-	//Element.Style.Height = len(Element.Text.SplitText) + Element.Style.PaddingTop + Element.Style.PaddingBottom + 1
+	childrenElement := hom.Window.Element.Children.Elements[0]
+
+	childrenElement.Style.X = hom.Window.Element.Bounding.OffsetTopLeft.X
+	childrenElement.Style.Y = hom.Window.Element.Bounding.OffsetTopLeft.Y
+
+	if childrenElement.Text != nil {
+		childrenElement.Text.SplitText = SplitLongText(normalizedWidth-childrenElement.Style.PaddingLeft-childrenElement.Style.PaddingRight, childrenElement.Text.Value)
+	}
+
+	if len(childrenElement.Text.SplitText) > 1 {
+		childrenElement.Style.Width = normalizedWidth
+	} else {
+		childrenElement.Style.Width = len(childrenElement.Text.SplitText[0]) + 1
+	}
+
+	computedHeight := len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
+
+	if computedHeight > normalizedHeight {
+		childrenElement.Style.Height = normalizedHeight
+	} else {
+		childrenElement.Style.Height = computedHeight
+	}
+
+	//childrenElement.Style.Height = len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
+
+	hom.computeBounding(childrenElement)
 
 	//hom.calculateLayout(hom.Window.Width, hom.Window.Height, Element)
 }

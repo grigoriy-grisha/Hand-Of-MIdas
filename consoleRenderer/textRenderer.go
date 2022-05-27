@@ -210,8 +210,11 @@ func (tr *textRenderer) renderText() {
 	}
 }
 
-func TextIsNotEmpty(text string) bool {
-	return len(text) != 0
+func TextIsNotEmpty(text *HOM.Text) bool {
+	if text == nil {
+		return false
+	}
+	return len(text.Value) != 0
 }
 
 // todo заменить назвение center на middle чтобы не путаться

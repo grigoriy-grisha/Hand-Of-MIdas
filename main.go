@@ -725,12 +725,24 @@ func main() {
 			PaddingBottom:   2,
 			VerticalContent: HOM.VerticalContentCenter,
 			AlignContent:    HOM.AlignContentCenter,
-		}, &HOM.Text{Value: text}, nil,
+		}, nil, &HOM.Children{
+			Elements: []*HOM.Element{
+				HOM.NewDomElement(&HOM.Style{
+					PaddingRight:  5,
+					PaddingLeft:   5,
+					PaddingTop:    2,
+					PaddingBottom: 2,
+				},
+					&HOM.Text{Value: longText},
+					nil,
+				),
+			},
+		},
 	)
 
 	newHandOfMidas.PreprocessTree(domElement)
 
-	//printHOMTree(*domElement)
+	printHOMTree(*domElement)
 
 	err := termbox.Init()
 	if err != nil {
