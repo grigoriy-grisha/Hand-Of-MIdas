@@ -6,44 +6,22 @@ import (
 )
 
 type textRenderer struct {
-	alignContent     HOM.AlignContent
-	verticalContent  HOM.VerticalContent
-	topX             int
-	topY             int
-	height           int
-	width            int
-	botY             int
-	botX             int
-	normalizedHeight int
-	normalizeTopX    int
+	alignContent    HOM.AlignContent
+	verticalContent HOM.VerticalContent
+	element         *HOM.Element
 }
 
 type NewTextRendererParams struct {
 	alignContent    HOM.AlignContent
 	verticalContent HOM.VerticalContent
-	topX            int
-	topY            int
-	height          int
-	width           int
-	paddingBottom   int
-	paddingTop      int
-	paddingLeft     int
-	paddingRight    int
+	element         *HOM.Element
 }
 
 func NewTextRenderer(params NewTextRendererParams) *textRenderer {
 	return &textRenderer{
-		alignContent:     params.alignContent,
-		verticalContent:  params.verticalContent,
-		height:           params.height,
-		normalizedHeight: params.height - params.paddingBottom,
-		normalizeTopX:    params.topX + params.paddingLeft,
-		topX:             params.topX,
-		topY:             params.topY + params.paddingTop,
-		botY:             params.topY + params.height - params.paddingBottom,
-		//может rightX
-		botX:  params.topX + params.width - params.paddingRight,
-		width: params.width,
+		alignContent:    params.alignContent,
+		verticalContent: params.verticalContent,
+		element:         params.element,
 	}
 }
 
@@ -51,12 +29,13 @@ func NewTextRenderer(params NewTextRendererParams) *textRenderer {
 //todo сделать text рендерер независимым от termbox
 //todo рефакторинг
 
-func (tr *textRenderer) renderText(element HOM.Element) {
-	//normalizedHeight := element.Style.Height - element.Style.PaddingTop - element.Style.PaddingBottom
-	bounding := element.Bounding
+func (tr *textRenderer) renderText() {
+	bounding := tr.element.Bounding
+	SplitText := tr.element.Text.SplitText
+	TextValue := tr.element.Text.Value
 
 	if tr.isLeftTopAlign() {
-		for textIndex, spitText := range element.Text.SplitText {
+		for textIndex, spitText := range SplitText {
 			y := bounding.OffsetTopLeft.Y + 1 + textIndex
 
 			if y >= bounding.OffsetBottomLeft.Y {
@@ -72,9 +51,9 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 	}
 
 	if tr.isCenterLeftAlign() {
-		centerPositionY := tr.computeCenterY(len(element.Text.SplitText) - 1)
+		centerPositionY := tr.computeCenterY(len(SplitText) - 1)
 
-		for textIndex, spitText := range element.Text.SplitText {
+		for textIndex, spitText := range SplitText {
 			y := centerPositionY + textIndex
 
 			if y >= bounding.OffsetBottomLeft.Y {
@@ -93,9 +72,9 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 	}
 
 	if tr.isLeftBottomAlign() {
-		length := len(element.Text.SplitText)
+		length := len(SplitText)
 
-		for textIndex, spitText := range element.Text.SplitText {
+		for textIndex, spitText := range SplitText {
 			y := bounding.OffsetBottomLeft.Y - length + textIndex
 
 			if y <= bounding.OffsetTopLeft.Y {
@@ -111,7 +90,7 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 	}
 
 	if tr.isRightTopAlign() {
-		for textIndex, spitText := range element.Text.SplitText {
+		for textIndex, spitText := range SplitText {
 			textLength := len(spitText) - 1
 
 			y := bounding.OffsetTopLeft.Y + 1 + textIndex
@@ -124,59 +103,59 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 
 				x := bounding.OffsetBottomRight.X - 1 - i
 
-				termbox.SetCell(x, y, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+				termbox.SetCell(x, y, rune(TextValue[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
 	if tr.isCenterRightAlign() {
-		centerPositionY := tr.computeCenterY(len(element.Text.SplitText))
+		centerPositionY := tr.computeCenterY(len(SplitText))
 
-		for textIndex, spitText := range element.Text.SplitText {
+		for textIndex, spitText := range SplitText {
 			y := centerPositionY + textIndex
 
-			if y >= tr.botY {
+			if y >= bounding.OffsetBottomRight.Y {
 				continue
 			}
 
-			if y <= tr.topY {
+			if y <= bounding.OffsetTopLeft.Y {
 				continue
 			}
 
 			textLength := len(spitText) - 1
 
 			for i := textLength; i >= 0; i-- {
-				x := tr.botX - 1 - i
-				termbox.SetCell(x, y, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+				x := bounding.OffsetBottomRight.X - 1 - i
+				termbox.SetCell(x, y, rune(TextValue[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
 	if tr.isRightBottomAlign() {
-		length := len(element.Text.SplitText)
+		length := len(SplitText)
 
-		for textIndex, spitText := range element.Text.SplitText {
+		for textIndex, spitText := range SplitText {
 
-			y := tr.botY - length + textIndex
+			y := bounding.OffsetBottomRight.Y - length + textIndex
 
-			if y <= tr.topY {
+			if y <= bounding.OffsetTopLeft.Y {
 				continue
 			}
 
 			textLength := len(spitText) - 1
 
 			for i := textLength; i >= 0; i-- {
-				x := tr.botX - 1 - i
-				termbox.SetCell(x, y, rune(element.Text.Value[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
+				x := bounding.OffsetBottomRight.X - 1 - i
+				termbox.SetCell(x, y, rune(TextValue[textLength-i]), termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
 
 	if tr.isCenterTopAlign() {
-		for textIndex, splitText := range element.Text.SplitText {
-			y := tr.topY + 1 + textIndex
+		for textIndex, splitText := range SplitText {
+			y := bounding.OffsetTopLeft.Y + 1 + textIndex
 
-			if y >= tr.normalizedHeight {
+			if y >= bounding.OffsetBottomRight.Y {
 				break
 			}
 
@@ -190,12 +169,12 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 	}
 
 	if tr.isCenterBottomAlign() {
-		length := len(element.Text.SplitText)
+		length := len(SplitText)
 
-		for textIndex, splitText := range element.Text.SplitText {
-			y := tr.botY - length + textIndex
+		for textIndex, splitText := range SplitText {
+			y := bounding.OffsetBottomRight.Y - length + textIndex
 
-			if y <= tr.topY {
+			if y <= bounding.OffsetTopLeft.Y {
 				continue
 			}
 
@@ -208,16 +187,16 @@ func (tr *textRenderer) renderText(element HOM.Element) {
 	}
 
 	if tr.isCenterCenterAlign() {
-		centerPositionY := tr.computeCenterY(len(element.Text.SplitText) - 1)
+		centerPositionY := tr.computeCenterY(len(SplitText) - 1)
 
-		for textIndex, spitText := range element.Text.SplitText {
+		for textIndex, spitText := range SplitText {
 			y := centerPositionY + textIndex
 
-			if y >= tr.botY {
+			if y >= bounding.OffsetBottomRight.Y {
 				continue
 			}
 
-			if y <= tr.topY {
+			if y <= bounding.OffsetTopLeft.Y {
 				continue
 			}
 
@@ -273,22 +252,9 @@ func (tr *textRenderer) isCenterCenterAlign() bool {
 }
 
 func (tr *textRenderer) computeCenterX(textLength int) int {
-	return (tr.topX + (tr.width / 2)) - textLength/2
+	return (tr.element.Bounding.ClientTopLeft.X + (tr.element.Style.Width / 2)) - textLength/2
 }
 
 func (tr *textRenderer) computeCenterY(rows int) int {
-	return (tr.topY+tr.botY)/2 - rows/2
+	return (tr.element.Bounding.OffsetTopLeft.Y+tr.element.Bounding.OffsetBottomRight.Y)/2 - rows/2
 }
-
-//func (textRenderer *textRenderer) handleSplitTextLeftSide(x int, y int, topLeftY int, element HOM.Element) {
-//	for textIndex, spitText := range element.Text.SplitText {
-//		if y+textIndex >= topLeftY+element.Style.Height {
-//			break
-//		}
-//
-//		for i, textItem := range spitText {
-//
-//			termbox.SetCell(x+i, y+textIndex, textItem, termbox.ColorWhite, termbox.ColorBlack)
-//		}
-//	}
-//}

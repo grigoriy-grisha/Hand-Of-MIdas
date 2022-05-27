@@ -723,8 +723,8 @@ func main() {
 			PaddingLeft:     5,
 			PaddingTop:      2,
 			PaddingBottom:   2,
-			VerticalContent: HOM.VerticalContentTop,
-			AlignContent:    HOM.AlignContentRight,
+			VerticalContent: HOM.VerticalContentCenter,
+			AlignContent:    HOM.AlignContentCenter,
 		}, &HOM.Text{Value: text}, nil,
 	)
 

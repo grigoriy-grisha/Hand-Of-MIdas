@@ -7,12 +7,10 @@ import (
 
 var borderTopLeft rune = 0x250C
 var borderTopRight rune = 0x2510
-var borderBotomLeft rune = 0x2514
+var borderBottomLeft rune = 0x2514
 var borderBottomRight rune = 0x2518
 var borderHorizontal rune = 0x2502
 var borderVertical rune = 0x2500
-
-// todo текст, который не вмещается вообще обрезать
 
 func selectCell(coords *HOM.Coords, border rune) {
 	termbox.SetCell(coords.X, coords.Y, border, termbox.ColorWhite, termbox.ColorBlack)
@@ -22,7 +20,7 @@ func RenderElement(element *HOM.Element) {
 	bounding := element.Bounding
 
 	selectCell(bounding.ClientTopLeft, borderTopLeft)
-	selectCell(bounding.ClientBottomLeft, borderBotomLeft)
+	selectCell(bounding.ClientBottomLeft, borderBottomLeft)
 	selectCell(bounding.ClientTopRight, borderTopRight)
 	selectCell(bounding.ClientBottomRight, borderBottomRight)
 
@@ -41,17 +39,10 @@ func RenderElement(element *HOM.Element) {
 			NewTextRendererParams{
 				alignContent:    element.Style.AlignContent,
 				verticalContent: element.Style.VerticalContent,
-				width:           element.Style.Width,
-				height:          element.Style.Height,
-				topX:            bounding.ClientTopLeft.X,
-				topY:            bounding.ClientTopLeft.Y,
-				paddingBottom:   element.Style.PaddingBottom,
-				paddingTop:      element.Style.PaddingTop,
-				paddingLeft:     element.Style.PaddingLeft,
-				paddingRight:    element.Style.PaddingRight,
+				element:         element,
 			})
 
-		textRenderer.renderText(*element)
+		textRenderer.renderText()
 	}
 
 	if element.Children != nil && len(element.Children.Elements) != 0 {
