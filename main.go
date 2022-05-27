@@ -725,6 +725,7 @@ func main() {
 			PaddingBottom:   2,
 			VerticalContent: HOM.VerticalContentCenter,
 			AlignContent:    HOM.AlignContentCenter,
+			Border:          true,
 		}, nil, &HOM.Children{
 			Elements: []*HOM.Element{
 				HOM.NewDomElement(&HOM.Style{
@@ -732,9 +733,22 @@ func main() {
 					PaddingLeft:   5,
 					PaddingTop:    2,
 					PaddingBottom: 2,
+					Border:        true,
 				},
-					&HOM.Text{Value: longText},
 					nil,
+					&HOM.Children{
+						Elements: []*HOM.Element{
+							HOM.NewDomElement(&HOM.Style{
+								PaddingRight:  5,
+								PaddingLeft:   5,
+								PaddingTop:    2,
+								PaddingBottom: 2,
+							},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+						},
+					},
 				),
 				HOM.NewDomElement(&HOM.Style{
 					PaddingRight:  5,
@@ -742,8 +756,19 @@ func main() {
 					PaddingTop:    2,
 					PaddingBottom: 2,
 				},
-					&HOM.Text{Value: "hello"},
 					nil,
+					&HOM.Children{
+						Elements: []*HOM.Element{
+							HOM.NewDomElement(&HOM.Style{},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+							HOM.NewDomElement(&HOM.Style{},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+						},
+					},
 				),
 			},
 		},

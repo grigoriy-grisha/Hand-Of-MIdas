@@ -16,7 +16,7 @@ func selectCell(coords *HOM.Coords, border rune) {
 	termbox.SetCell(coords.X, coords.Y, border, termbox.ColorWhite, termbox.ColorBlack)
 }
 
-func RenderElement(element *HOM.Element) {
+func drawBorder(element *HOM.Element) {
 	bounding := element.Bounding
 
 	selectCell(bounding.ClientTopLeft, borderTopLeft)
@@ -33,30 +33,30 @@ func RenderElement(element *HOM.Element) {
 		termbox.SetCell(i, bounding.ClientTopLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
 		termbox.SetCell(i, bounding.ClientBottomLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
 	}
+}
+
+func RenderElement(element *HOM.Element) {
+
+	if element.Style.Border {
+		drawBorder(element)
+	}
 
 	if TextIsNotEmpty(element.Text) {
-		textRenderer := NewTextRenderer(
+		NewTextRenderer(
 			NewTextRendererParams{
 				alignContent:    element.Style.AlignContent,
 				verticalContent: element.Style.VerticalContent,
 				element:         element,
-			})
-
-		textRenderer.renderText()
+			},
+		).renderText()
 	}
 
-	//if element.Children != nil && len(element.Children.Elements) != 0 {
-	//	for _, elem := range element.Children.Elements {
-	//		RenderElement(elem)
-	//	}
-	//}
-
-	if element.Children != nil {
-		for _, e := range element.Children.Elements {
-			RenderElement(e)
-		}
-
+	if element.Children == nil {
 		return
+	}
+
+	for _, element := range element.Children.Elements {
+		RenderElement(element)
 	}
 
 }

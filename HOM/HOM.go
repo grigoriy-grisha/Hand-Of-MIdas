@@ -31,6 +31,7 @@ type Style struct {
 	X               int
 	AlignContent    AlignContent
 	VerticalContent VerticalContent
+	Border          bool
 }
 
 type CompositeElement interface {
@@ -88,6 +89,37 @@ type Window struct {
 
 type HandOfMidas struct {
 	Window Window
+}
+
+func (children *Children) GetMaxWidth() int {
+	max := 0
+
+	if children == nil {
+		return max
+	}
+
+	for _, element := range children.Elements {
+		if max < element.Style.Width {
+			max = element.Style.Width
+		}
+	}
+
+	return max
+}
+
+func (children *Children) GetMaxHeight() int {
+	max := 0
+
+	if children == nil {
+		return max
+	}
+	for _, element := range children.Elements {
+		if max < element.Style.Height {
+			max = element.Style.Height
+		}
+	}
+
+	return max
 }
 
 func NewHandOfMidas(width int, height int) *HandOfMidas {
@@ -174,48 +206,10 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 
 	maxWidth := normalizedWidth / len(hom.Window.Element.Children.Elements)
 	//fmt.Println(maxWidth)
-	prevCoords := &Coords{
-		X: hom.Window.Element.Bounding.OffsetTopLeft.X,
-		Y: hom.Window.Element.Bounding.OffsetTopLeft.Y,
-	}
 
-	for _, element := range hom.Window.Element.Children.Elements {
-		element.Style.X = prevCoords.X
-		element.Style.Y = prevCoords.Y
+	//}
 
-		if element.Text != nil {
-			element.Text.SplitText = SplitLongText(
-				maxWidth-element.Style.PaddingLeft-element.Style.PaddingRight,
-				element.Text.Value,
-			)
-		}
-
-		// todo тут проверка
-		if len(element.Text.SplitText) > 1 {
-			element.Style.Width = maxWidth
-		} else {
-			element.Style.Width = len(element.Text.SplitText[0]) + 1 + element.Style.PaddingLeft + element.Style.PaddingRight
-		}
-
-		computedHeight := len(element.Text.SplitText) +
-			element.Style.PaddingTop +
-			element.Style.PaddingBottom + 1
-
-		if computedHeight > normalizedHeight {
-			element.Style.Height = normalizedHeight
-		} else {
-			element.Style.Height = computedHeight
-		}
-
-		hom.computeBounding(element)
-
-		prevCoords = &Coords{
-			X: element.Bounding.ClientTopRight.X + 1,
-			Y: element.Bounding.ClientTopRight.Y,
-		}
-	}
-
-	hom.calculateLayout(hom.Window.Width, hom.Window.Height, Element)
+	hom.calculateLayout(maxWidth, normalizedHeight, Element.Bounding.OffsetTopLeft, Element)
 }
 
 // todo разделить по строкам текст, рефткоринг
@@ -250,23 +244,52 @@ func SplitLongText(width int, text string) []string {
 	return splitText
 }
 
-func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, Element *Element) {
-	if Element.Children == nil {
-		return
+func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coords *Coords, Element *Element) {
+	prevCoords := &Coords{
+		X: coords.X,
+		Y: coords.Y,
 	}
 
-	//todo Тут надо применять flex свойства
-	for _, elem := range Element.Children.Elements {
-		//elem.Parent = Element
+	for _, element := range Element.Children.Elements {
+		element.Style.X = prevCoords.X
+		element.Style.Y = prevCoords.Y
 
-		if elem.Style.Height == 0 {
-			elem.Style.Height = parentHeight
+		if element.Text != nil {
+			element.Text.SplitText = SplitLongText(
+				parentWidth-element.Style.PaddingLeft-element.Style.PaddingRight,
+				element.Text.Value,
+			)
 		}
 
-		if elem.Style.Width == 0 {
-			elem.Style.Width = parentWidth
+		if element.Text != nil {
+			if len(element.Text.SplitText) > 1 {
+				element.Style.Width = parentWidth
+			} else {
+				element.Style.Width = len(element.Text.SplitText[0]) + 1 + element.Style.PaddingLeft + element.Style.PaddingRight
+			}
+
+			computedHeight := len(element.Text.SplitText) +
+				element.Style.PaddingTop +
+				element.Style.PaddingBottom + 1
+
+			if computedHeight > parentHeight {
+				element.Style.Height = parentHeight
+			} else {
+				element.Style.Height = computedHeight
+			}
 		}
 
-		hom.calculateLayout(Element.Style.Width, Element.Style.Height, elem)
+		if element.Children != nil {
+			hom.calculateLayout(parentWidth/len(element.Children.Elements), parentHeight, prevCoords, element)
+			element.Style.Width = element.Children.GetMaxWidth()
+			element.Style.Height = element.Children.GetMaxHeight()
+		}
+
+		hom.computeBounding(element)
+
+		prevCoords = &Coords{
+			X: element.Bounding.ClientTopRight.X + 1,
+			Y: element.Bounding.ClientTopRight.Y,
+		}
 	}
 }
