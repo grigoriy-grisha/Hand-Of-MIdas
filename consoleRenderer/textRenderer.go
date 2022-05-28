@@ -29,6 +29,13 @@ func NewTextRenderer(params NewTextRendererParams) *textRenderer {
 //todo сделать text рендерер независимым от termbox
 //todo рефакторинг
 
+func printText(x, y int, fg, bg termbox.Attribute, text string) {
+	for _, c := range text {
+		termbox.SetCell(x, y, c, fg, bg)
+		x++
+	}
+}
+
 func (tr *textRenderer) renderText() {
 	bounding := tr.element.Bounding
 	SplitText := tr.element.Text.SplitText
@@ -36,17 +43,13 @@ func (tr *textRenderer) renderText() {
 
 	if tr.isLeftTopAlign() {
 		for textIndex, spitText := range SplitText {
-			y := bounding.OffsetTopLeft.Y + 1 + textIndex
+			y := bounding.OffsetTopLeft.Y + textIndex + 1
 
-			if y >= bounding.OffsetBottomLeft.Y {
-				break
-			}
+			//if y >= bounding.OffsetBottomLeft.Y {
+			//	break
+			//}
 
-			for i, textItem := range spitText {
-				x := bounding.OffsetTopLeft.X + 1 + i
-
-				termbox.SetCell(x, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
-			}
+			printText(bounding.OffsetTopLeft.X+1, y, termbox.ColorWhite, termbox.ColorBlack, spitText)
 		}
 	}
 

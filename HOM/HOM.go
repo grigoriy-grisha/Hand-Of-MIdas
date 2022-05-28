@@ -74,6 +74,7 @@ type Element struct {
 func NewDomElement(Style *Style, Text *Text, Children *Children) *Element {
 	element := &Element{Style: Style, Text: Text, Children: Children}
 	element.Bounding = &Bounding{}
+
 	return element
 }
 
@@ -99,9 +100,8 @@ func (children *Children) GetMaxWidth() int {
 	}
 
 	for _, element := range children.Elements {
-		if max < element.Style.Width {
-			max = element.Style.Width
-		}
+		//todo 1 это отступ между элементами
+		max += element.Style.Width + 1
 	}
 
 	return max
@@ -134,6 +134,13 @@ func (hom *HandOfMidas) SetSizeWindow(width int, height int) {
 	hom.Window.Height = height
 }
 
+func (hom *HandOfMidas) getBorderOffset(Element *Element) int {
+	if Element.Style.Border {
+		return 1
+	}
+	return 1
+}
+
 func (hom *HandOfMidas) computeBounding(Element *Element) {
 	ClientX := Element.Style.X
 	ClientY := Element.Style.Y
@@ -152,7 +159,7 @@ func (hom *HandOfMidas) computeBounding(Element *Element) {
 
 	Element.Bounding.OffsetTopLeft = &Coords{X: OffsetX, Y: OffsetY}
 	Element.Bounding.OffsetBottomLeft = &Coords{X: OffsetX, Y: FullOffsetY}
-	Element.Bounding.OffsetTopRight = &Coords{X: FullOffsetX, Y: ClientY}
+	Element.Bounding.OffsetTopRight = &Coords{X: FullOffsetX, Y: OffsetY}
 	Element.Bounding.OffsetBottomRight = &Coords{X: FullOffsetX, Y: FullOffsetY}
 
 }
@@ -171,43 +178,14 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	hom.computeBounding(Element)
 
 	//todo, возможно, это не должно тут быть
-	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight
-	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom
+	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight + hom.getBorderOffset(Element)
+	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom + hom.getBorderOffset(Element)
 
 	if Element.Text != nil {
 		Element.Text.SplitText = SplitLongText(normalizedWidth, Element.Text.Value)
 	}
-	//childrenElement := hom.Window.Element.Children.Elements[0]
-	//
-	//childrenElement.Style.X = hom.Window.Element.Bounding.OffsetTopLeft.X
-	//childrenElement.Style.Y = hom.Window.Element.Bounding.OffsetTopLeft.Y
-	//
-	//if childrenElement.Text != nil {
-	//	childrenElement.Text.SplitText = SplitLongText(normalizedWidth-childrenElement.Style.PaddingLeft-childrenElement.Style.PaddingRight, childrenElement.Text.Value)
-	//}
-	//
-	//if len(childrenElement.Text.SplitText) > 1 {
-	//	childrenElement.Style.Width = normalizedWidth
-	//} else {
-	//	childrenElement.Style.Width = len(childrenElement.Text.SplitText[0]) + 1 + Element.Style.PaddingLeft + Element.Style.PaddingRight
-	//}
-	//
-	//computedHeight := len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
-	//
-	//if computedHeight > normalizedHeight {
-	//	childrenElement.Style.Height = normalizedHeight
-	//} else {
-	//	childrenElement.Style.Height = computedHeight
-	//}
-	//
-	////childrenElement.Style.Height = len(childrenElement.Text.SplitText) + childrenElement.Style.PaddingTop + childrenElement.Style.PaddingBottom + 1
-	//
-	//hom.computeBounding(childrenElement)
 
-	maxWidth := normalizedWidth / len(hom.Window.Element.Children.Elements)
-	//fmt.Println(maxWidth)
-
-	//}
+	maxWidth := normalizedWidth / len(Element.Children.Elements)
 
 	hom.calculateLayout(maxWidth, normalizedHeight, Element.Bounding.OffsetTopLeft, Element)
 }
@@ -244,6 +222,7 @@ func SplitLongText(width int, text string) []string {
 	return splitText
 }
 
+// todo + 1 коэфицент это из-за border
 func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coords *Coords, Element *Element) {
 	prevCoords := &Coords{
 		X: coords.X,
@@ -251,6 +230,7 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 	}
 
 	for _, element := range Element.Children.Elements {
+		bodrderOffset := hom.getBorderOffset(element)
 		element.Style.X = prevCoords.X
 		element.Style.Y = prevCoords.Y
 
@@ -265,12 +245,18 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 			if len(element.Text.SplitText) > 1 {
 				element.Style.Width = parentWidth
 			} else {
-				element.Style.Width = len(element.Text.SplitText[0]) + 1 + element.Style.PaddingLeft + element.Style.PaddingRight
+				computedWidth := len(element.Text.Value) + element.Style.PaddingLeft + element.Style.PaddingRight + bodrderOffset
+
+				if computedWidth > parentWidth {
+					element.Style.Width = parentWidth
+				} else {
+					element.Style.Width = computedWidth
+				}
 			}
 
 			computedHeight := len(element.Text.SplitText) +
 				element.Style.PaddingTop +
-				element.Style.PaddingBottom + 1
+				element.Style.PaddingBottom + bodrderOffset
 
 			if computedHeight > parentHeight {
 				element.Style.Height = parentHeight
@@ -280,16 +266,34 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 		}
 
 		if element.Children != nil {
-			hom.calculateLayout(parentWidth/len(element.Children.Elements), parentHeight, prevCoords, element)
-			element.Style.Width = element.Children.GetMaxWidth()
-			element.Style.Height = element.Children.GetMaxHeight()
+			hom.calculateLayout(
+				(parentWidth-element.Style.PaddingLeft-element.Style.PaddingRight)/len(element.Children.Elements),
+				parentHeight-element.Style.PaddingTop-element.Style.PaddingBottom,
+				&Coords{X: prevCoords.X + element.Style.PaddingLeft, Y: prevCoords.Y + element.Style.PaddingTop},
+				element,
+			)
+
+			computedWidth := element.Children.GetMaxWidth() + element.Style.PaddingLeft + element.Style.PaddingRight + bodrderOffset
+			computedHeight := element.Children.GetMaxHeight() + element.Style.PaddingTop + element.Style.PaddingBottom + bodrderOffset
+
+			if computedWidth > parentWidth {
+				element.Style.Width = parentWidth
+			} else {
+				element.Style.Width = computedWidth
+			}
+
+			if computedHeight > parentHeight {
+				element.Style.Height = parentHeight
+			} else {
+				element.Style.Height = computedHeight
+			}
 		}
 
 		hom.computeBounding(element)
-
 		prevCoords = &Coords{
 			X: element.Bounding.ClientTopRight.X + 1,
 			Y: element.Bounding.ClientTopRight.Y,
 		}
+
 	}
 }

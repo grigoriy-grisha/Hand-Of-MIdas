@@ -646,27 +646,27 @@ var counter = 0
 
 func pretty_print_mouse(ev *termbox.Event) {
 	printf_tb(3, 19, termbox.ColorWhite, termbox.ColorBlack, "Mouse event: %d x %d", ev.MouseX, ev.MouseY)
-	button := ""
-	switch ev.Key {
-	case termbox.MouseLeft:
-		button = "MouseLeft: %d"
-	case termbox.MouseMiddle:
-		button = "MouseMiddle: %d"
-	case termbox.MouseRight:
-		button = "MouseRight: %d"
-	case termbox.MouseWheelUp:
-		button = "MouseWheelUp: %d"
-	case termbox.MouseWheelDown:
-		button = "MouseWheelDown: %d"
-	case termbox.MouseRelease:
-		button = "MouseRelease: %d"
-	}
-	if ev.Mod&termbox.ModMotion != 0 {
-		button += "*"
-	}
-	counter++
-	printf_tb(43, 19, termbox.ColorWhite, termbox.ColorBlack, "Key: ")
-	printf_tb(48, 19, termbox.ColorYellow, termbox.ColorBlack, button, counter)
+	//button := ""
+	//switch ev.Key {
+	//case termbox.MouseLeft:
+	//	button = "MouseLeft: %d"
+	//case termbox.MouseMiddle:
+	//	button = "MouseMiddle: %d"
+	//case termbox.MouseRight:
+	//	button = "MouseRight: %d"
+	//case termbox.MouseWheelUp:
+	//	button = "MouseWheelUp: %d"
+	//case termbox.MouseWheelDown:
+	//	button = "MouseWheelDown: %d"
+	//case termbox.MouseRelease:
+	//	button = "MouseRelease: %d"
+	//}
+	//if ev.Mod&termbox.ModMotion != 0 {
+	//	button += "*"
+	//}
+	//counter++
+	//printf_tb(43, 19, termbox.ColorWhite, termbox.ColorBlack, "Key: ")
+	//printf_tb(48, 19, termbox.ColorYellow, termbox.ColorBlack, button, counter)
 }
 
 func dispatch_press(ev *termbox.Event) {
@@ -715,7 +715,7 @@ var longText = "\nLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet
 var text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero!"
 
 func main() {
-	newHandOfMidas := HOM.NewHandOfMidas(100, 20)
+	newHandOfMidas := HOM.NewHandOfMidas(100, 30)
 
 	domElement := HOM.NewDomElement(
 		&HOM.Style{
@@ -728,13 +728,48 @@ func main() {
 			Border:          true,
 		}, nil, &HOM.Children{
 			Elements: []*HOM.Element{
+
 				HOM.NewDomElement(&HOM.Style{
 					PaddingRight:  5,
 					PaddingLeft:   5,
 					PaddingTop:    2,
 					PaddingBottom: 2,
-					Border:        true,
 				},
+					nil,
+					&HOM.Children{
+						Elements: []*HOM.Element{
+							HOM.NewDomElement(&HOM.Style{},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+							HOM.NewDomElement(&HOM.Style{},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+
+							HOM.NewDomElement(&HOM.Style{},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+							HOM.NewDomElement(&HOM.Style{},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+							HOM.NewDomElement(&HOM.Style{},
+								&HOM.Text{Value: "hello"},
+								nil,
+							),
+						},
+					},
+				),
+				HOM.NewDomElement(
+					&HOM.Style{
+						PaddingRight:  5,
+						PaddingLeft:   5,
+						PaddingTop:    2,
+						PaddingBottom: 2,
+						Border:        true,
+					},
 					nil,
 					&HOM.Children{
 						Elements: []*HOM.Element{
@@ -744,27 +779,7 @@ func main() {
 								PaddingTop:    2,
 								PaddingBottom: 2,
 							},
-								&HOM.Text{Value: "hello"},
-								nil,
-							),
-						},
-					},
-				),
-				HOM.NewDomElement(&HOM.Style{
-					PaddingRight:  5,
-					PaddingLeft:   5,
-					PaddingTop:    2,
-					PaddingBottom: 2,
-				},
-					nil,
-					&HOM.Children{
-						Elements: []*HOM.Element{
-							HOM.NewDomElement(&HOM.Style{},
-								&HOM.Text{Value: "hello"},
-								nil,
-							),
-							HOM.NewDomElement(&HOM.Style{},
-								&HOM.Text{Value: "hello"},
+								&HOM.Text{Value: "hello world"},
 								nil,
 							),
 						},
@@ -799,7 +814,8 @@ mainloop:
 				break mainloop
 			}
 		case termbox.EventMouse:
-			fmt.Println(ev)
+			pretty_print_mouse(&ev)
+			termbox.Flush()
 		case termbox.EventError:
 			panic(ev.Err)
 		}
