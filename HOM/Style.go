@@ -5,8 +5,8 @@ type VerticalContent int8
 type ContentDirection int8
 
 var (
-	HorizontalDirection = 0
-	VerticalDirection   = 0
+	HorizontalDirection ContentDirection = 0
+	VerticalDirection   ContentDirection = 1
 )
 
 var (
@@ -22,15 +22,16 @@ var (
 )
 
 type Style struct {
-	Border          bool
-	PaddingTop      int
-	PaddingBottom   int
-	PaddingLeft     int
-	PaddingRight    int
-	Width           int
-	Height          int
-	Y               int
-	X               int
-	VerticalContent VerticalContent
-	AlignContent    AlignContent
+	Border           bool
+	PaddingTop       int
+	PaddingBottom    int
+	PaddingLeft      int
+	PaddingRight     int
+	Width            int
+	Height           int
+	Y                int
+	X                int
+	ContentDirection ContentDirection
+	VerticalContent  VerticalContent
+	AlignContent     AlignContent
 }

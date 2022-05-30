@@ -98,14 +98,41 @@ func (element *Element) getAvailableWidth(parentWidth int) int {
 		len(element.Children.Elements)
 }
 
-func (element *Element) getAvailableHeight(parentHeight int) int {
-	return parentHeight -
-		element.Style.PaddingTop -
-		element.Style.PaddingBottom
+func (element *Element) getAvailableHeight(contentDirection ContentDirection, parentHeight int) int {
+	if contentDirection == HorizontalDirection {
+		return parentHeight -
+			element.Style.PaddingTop -
+			element.Style.PaddingBottom
+	}
+
+	computedHeight := element.Children.GetMaxHeight(contentDirection) +
+		element.Style.PaddingLeft +
+		element.Style.PaddingRight
+
+	if computedHeight > parentHeight {
+		return parentHeight
+	}
+
+	return computedHeight
+
 }
 
-func (element *Element) getWidthWithChildren(parentWidth int) int {
-	computedWidth := element.Children.GetMaxWidth() +
+func (element *Element) getCoordsForNextElement(ContentDirection ContentDirection, prevCoords *Coords) *Coords {
+	if ContentDirection == HorizontalDirection {
+		return &Coords{
+			X: prevCoords.X + element.Style.PaddingLeft,
+			Y: prevCoords.Y + element.Style.PaddingTop,
+		}
+	}
+
+	return &Coords{
+		X: prevCoords.X + element.Style.PaddingLeft,
+		Y: prevCoords.Y + element.Style.PaddingBottom,
+	}
+}
+
+func (element *Element) getWidthWithChildren(contentDirection ContentDirection, parentWidth int) int {
+	computedWidth := element.Children.GetMaxWidth(contentDirection) +
 		element.Style.PaddingLeft +
 		element.Style.PaddingRight
 
@@ -116,8 +143,8 @@ func (element *Element) getWidthWithChildren(parentWidth int) int {
 	return computedWidth
 }
 
-func (element *Element) getHeightWithChildren(parentHeight int) int {
-	computedHeight := element.Children.GetMaxHeight() +
+func (element *Element) getHeightWithChildren(contentDirection ContentDirection, parentHeight int) int {
+	computedHeight := element.Children.GetMaxHeight(contentDirection) +
 		element.Style.PaddingTop +
 		element.Style.PaddingBottom
 
@@ -126,6 +153,7 @@ func (element *Element) getHeightWithChildren(parentHeight int) int {
 	}
 
 	return computedHeight
+
 }
 
 func (element *Element) computeBounding() {
