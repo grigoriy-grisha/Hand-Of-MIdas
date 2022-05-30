@@ -29,26 +29,28 @@ func NewHOMElement(Style *Style, Text *Text, Children *Children) *Element {
 
 	return element
 }
-
 func (element *Element) getBorderOffset() int {
 	if element.Style.Border {
 		return 1
 	}
+	return 0
+}
 
+func (element *Element) getSizeOffset() int {
 	return 1
 }
 
 func (element *Element) getWidthOffset() int {
 	return element.Style.PaddingLeft +
 		element.Style.PaddingRight +
-		element.getBorderOffset()
+		element.getSizeOffset()
 }
 
 func (element *Element) getElementWidth() int {
 	return element.Text.ValueLength +
 		element.Style.PaddingLeft +
 		element.Style.PaddingRight +
-		element.getBorderOffset()
+		element.getSizeOffset()
 }
 
 func (element *Element) computeWidth(parentWidth int) int {
@@ -68,7 +70,7 @@ func (element *Element) getElementHeight() int {
 	return element.Text.SplitTextLength +
 		element.Style.PaddingTop +
 		element.Style.PaddingBottom +
-		element.getBorderOffset()
+		element.getSizeOffset()
 }
 
 func (element *Element) computeHeight(parentHeight int) int {
@@ -96,14 +98,41 @@ func (element *Element) getAvailableWidth(parentWidth int) int {
 		len(element.Children.Elements)
 }
 
-func (element *Element) getAvailableHeight(parentHeight int) int {
-	return parentHeight -
-		element.Style.PaddingTop -
-		element.Style.PaddingBottom
+func (element *Element) getAvailableHeight(contentDirection ContentDirection, parentHeight int) int {
+	if contentDirection == HorizontalDirection {
+		return parentHeight -
+			element.Style.PaddingTop -
+			element.Style.PaddingBottom
+	}
+
+	computedHeight := element.Children.GetMaxHeight(contentDirection) +
+		element.Style.PaddingLeft +
+		element.Style.PaddingRight
+
+	if computedHeight > parentHeight {
+		return parentHeight
+	}
+
+	return computedHeight
+
 }
 
-func (element *Element) getWidthWithChildren(parentWidth int) int {
-	computedWidth := element.Children.GetMaxWidth() +
+func (element *Element) getCoordsForNextElement(ContentDirection ContentDirection, prevCoords *Coords) *Coords {
+	if ContentDirection == HorizontalDirection {
+		return &Coords{
+			X: prevCoords.X + element.Style.PaddingLeft,
+			Y: prevCoords.Y + element.Style.PaddingTop,
+		}
+	}
+
+	return &Coords{
+		X: prevCoords.X + element.Style.PaddingLeft,
+		Y: prevCoords.Y + element.Style.PaddingBottom,
+	}
+}
+
+func (element *Element) getWidthWithChildren(contentDirection ContentDirection, parentWidth int) int {
+	computedWidth := element.Children.GetMaxWidth(contentDirection) +
 		element.Style.PaddingLeft +
 		element.Style.PaddingRight
 
@@ -114,8 +143,8 @@ func (element *Element) getWidthWithChildren(parentWidth int) int {
 	return computedWidth
 }
 
-func (element *Element) getHeightWithChildren(parentHeight int) int {
-	computedHeight := element.Children.GetMaxHeight() +
+func (element *Element) getHeightWithChildren(contentDirection ContentDirection, parentHeight int) int {
+	computedHeight := element.Children.GetMaxHeight(contentDirection) +
 		element.Style.PaddingTop +
 		element.Style.PaddingBottom
 
@@ -124,9 +153,9 @@ func (element *Element) getHeightWithChildren(parentHeight int) int {
 	}
 
 	return computedHeight
+
 }
 
-//comment
 func (element *Element) computeBounding() {
 	ClientX := element.Style.X
 	ClientY := element.Style.Y

@@ -36,13 +36,13 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	Element.computeBounding()
 
 	//todo, возможно, это не должно тут быть
-	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight + Element.getBorderOffset()
-	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom + Element.getBorderOffset()
+	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight + Element.getSizeOffset()
+	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom + Element.getSizeOffset()
 
 	if Element.Text != nil {
 		Element.Text.CalculateTextHyphens(
 			hom.Window.Width,
-			Element.Style.PaddingLeft+Element.Style.PaddingRight+Element.getBorderOffset(),
+			Element.Style.PaddingLeft+Element.Style.PaddingRight+Element.getSizeOffset(),
 		)
 	}
 
@@ -64,20 +64,27 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 		if element.Children != nil {
 			hom.calculateLayout(
 				element.getAvailableWidth(parentWidth),
-				element.getAvailableHeight(parentHeight),
-				&Coords{X: prevCoords.X + element.Style.PaddingLeft, Y: prevCoords.Y + element.Style.PaddingTop},
+				element.getAvailableHeight(Element.Style.ContentDirection, parentHeight),
+				element.getCoordsForNextElement(Element.Style.ContentDirection, prevCoords),
 				element,
 			)
 
-			element.Style.Width = element.getWidthWithChildren(parentWidth)
-			element.Style.Height = element.getHeightWithChildren(parentHeight)
+			element.Style.Width = element.getWidthWithChildren(element.Style.ContentDirection, parentWidth)
+			element.Style.Height = element.getHeightWithChildren(element.Style.ContentDirection, parentHeight)
 		}
 
 		element.computeBounding()
 
-		prevCoords = &Coords{
-			X: element.Bounding.ClientTopRight.X + 1,
-			Y: element.Bounding.ClientTopRight.Y,
+		if Element.Style.ContentDirection == HorizontalDirection {
+			prevCoords = &Coords{
+				X: element.Bounding.ClientTopRight.X + element.getBorderOffset(),
+				Y: element.Bounding.ClientTopRight.Y,
+			}
+		} else {
+			prevCoords = &Coords{
+				X: element.Bounding.ClientBottomLeft.X,
+				Y: element.Bounding.ClientBottomLeft.Y + element.getBorderOffset(),
+			}
 		}
 
 	}

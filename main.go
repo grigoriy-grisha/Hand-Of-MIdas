@@ -728,13 +728,15 @@ func main() {
 			Border:          true,
 		}, nil, &HOM.Children{
 			Elements: []*HOM.Element{
-
-				HOM.NewHOMElement(&HOM.Style{
-					PaddingRight:  5,
-					PaddingLeft:   5,
-					PaddingTop:    2,
-					PaddingBottom: 2,
-				},
+				HOM.NewHOMElement(
+					&HOM.Style{
+						PaddingRight:     5,
+						PaddingLeft:      5,
+						PaddingTop:       2,
+						PaddingBottom:    2,
+						ContentDirection: HOM.VerticalDirection,
+						Border:           true,
+					},
 					nil,
 					&HOM.Children{
 						Elements: []*HOM.Element{
@@ -779,7 +781,7 @@ func main() {
 								PaddingTop:    2,
 								PaddingBottom: 2,
 							},
-								&HOM.Text{Value: "hello world"},
+								&HOM.Text{Value: "hello world "},
 								nil,
 							),
 						},

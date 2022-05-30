@@ -2,6 +2,12 @@ package HOM
 
 type AlignContent int8
 type VerticalContent int8
+type ContentDirection int8
+
+var (
+	HorizontalDirection ContentDirection = 0
+	VerticalDirection   ContentDirection = 1
+)
 
 var (
 	AlignContentLeft   AlignContent = 0
@@ -16,15 +22,16 @@ var (
 )
 
 type Style struct {
-	Border          bool
-	PaddingTop      int
-	PaddingBottom   int
-	PaddingLeft     int
-	PaddingRight    int
-	Width           int
-	Height          int
-	Y               int
-	X               int
-	VerticalContent VerticalContent
-	AlignContent    AlignContent
+	Border           bool
+	PaddingTop       int
+	PaddingBottom    int
+	PaddingLeft      int
+	PaddingRight     int
+	Width            int
+	Height           int
+	Y                int
+	X                int
+	ContentDirection ContentDirection
+	VerticalContent  VerticalContent
+	AlignContent     AlignContent
 }
