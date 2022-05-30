@@ -11,12 +11,15 @@ func (children *Children) GetMaxWidth() int {
 		return max
 	}
 
-	for _, element := range children.Elements {
-		//todo 1 это отступ между элементами
-		max += element.Style.Width + 1
+	for index, element := range children.Elements {
+		max += element.Style.Width
+
+		if index != 0 {
+			max += element.getBorderOffset()
+		}
 	}
 
-	return max - 1
+	return max
 }
 
 func (children *Children) GetMaxHeight() int {

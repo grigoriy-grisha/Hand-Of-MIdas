@@ -2,6 +2,12 @@ package HOM
 
 type AlignContent int8
 type VerticalContent int8
+type ContentDirection int8
+
+var (
+	HorizontalDirection = 0
+	VerticalDirection   = 0
+)
 
 var (
 	AlignContentLeft   AlignContent = 0

@@ -52,9 +52,9 @@ func drawBorder(element *HOM.Element) {
 
 func RenderElement(element *HOM.Element) {
 
-	//if element.Style.Border {
-	drawBorder(element)
-	//}
+	if element.Style.Border {
+		drawBorder(element)
+	}
 
 	if TextIsNotEmpty(element.Text) {
 		NewTextRenderer(

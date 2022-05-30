@@ -36,13 +36,13 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	Element.computeBounding()
 
 	//todo, возможно, это не должно тут быть
-	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight + Element.getBorderOffset()
-	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom + Element.getBorderOffset()
+	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight + Element.getSizeOffset()
+	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom + Element.getSizeOffset()
 
 	if Element.Text != nil {
 		Element.Text.CalculateTextHyphens(
 			hom.Window.Width,
-			Element.Style.PaddingLeft+Element.Style.PaddingRight+Element.getBorderOffset(),
+			Element.Style.PaddingLeft+Element.Style.PaddingRight+Element.getSizeOffset(),
 		)
 	}
 
@@ -76,7 +76,7 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 		element.computeBounding()
 
 		prevCoords = &Coords{
-			X: element.Bounding.ClientTopRight.X + 1,
+			X: element.Bounding.ClientTopRight.X + element.getBorderOffset(),
 			Y: element.Bounding.ClientTopRight.Y,
 		}
 
