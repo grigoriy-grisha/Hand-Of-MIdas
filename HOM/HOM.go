@@ -104,7 +104,7 @@ func (children *Children) GetMaxWidth() int {
 		max += element.Style.Width + 1
 	}
 
-	return max
+	return max - 1
 }
 
 func (children *Children) GetMaxHeight() int {
@@ -273,8 +273,8 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 				element,
 			)
 
-			computedWidth := element.Children.GetMaxWidth() + element.Style.PaddingLeft + element.Style.PaddingRight + bodrderOffset
-			computedHeight := element.Children.GetMaxHeight() + element.Style.PaddingTop + element.Style.PaddingBottom + bodrderOffset
+			computedWidth := element.Children.GetMaxWidth() + element.Style.PaddingLeft + element.Style.PaddingRight
+			computedHeight := element.Children.GetMaxHeight() + element.Style.PaddingTop + element.Style.PaddingBottom
 
 			if computedWidth > parentWidth {
 				element.Style.Width = parentWidth
