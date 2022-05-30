@@ -126,6 +126,7 @@ func (element *Element) getHeightWithChildren(parentHeight int) int {
 	return computedHeight
 }
 
+//comment
 func (element *Element) computeBounding() {
 	ClientX := element.Style.X
 	ClientY := element.Style.Y
