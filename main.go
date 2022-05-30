@@ -717,7 +717,7 @@ var text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit Amet ducimu
 func main() {
 	newHandOfMidas := HOM.NewHandOfMidas(100, 30)
 
-	domElement := HOM.NewDomElement(
+	domElement := HOM.NewHOMElement(
 		&HOM.Style{
 			PaddingRight:    5,
 			PaddingLeft:     5,
@@ -729,7 +729,7 @@ func main() {
 		}, nil, &HOM.Children{
 			Elements: []*HOM.Element{
 
-				HOM.NewDomElement(&HOM.Style{
+				HOM.NewHOMElement(&HOM.Style{
 					PaddingRight:  5,
 					PaddingLeft:   5,
 					PaddingTop:    2,
@@ -738,31 +738,31 @@ func main() {
 					nil,
 					&HOM.Children{
 						Elements: []*HOM.Element{
-							HOM.NewDomElement(&HOM.Style{},
+							HOM.NewHOMElement(&HOM.Style{},
 								&HOM.Text{Value: "hello"},
 								nil,
 							),
-							HOM.NewDomElement(&HOM.Style{},
+							HOM.NewHOMElement(&HOM.Style{},
 								&HOM.Text{Value: "hello"},
 								nil,
 							),
 
-							HOM.NewDomElement(&HOM.Style{},
+							HOM.NewHOMElement(&HOM.Style{},
 								&HOM.Text{Value: "hello"},
 								nil,
 							),
-							HOM.NewDomElement(&HOM.Style{},
+							HOM.NewHOMElement(&HOM.Style{},
 								&HOM.Text{Value: "hello"},
 								nil,
 							),
-							HOM.NewDomElement(&HOM.Style{},
+							HOM.NewHOMElement(&HOM.Style{},
 								&HOM.Text{Value: "hello"},
 								nil,
 							),
 						},
 					},
 				),
-				HOM.NewDomElement(
+				HOM.NewHOMElement(
 					&HOM.Style{
 						PaddingRight:  5,
 						PaddingLeft:   5,
@@ -773,7 +773,7 @@ func main() {
 					nil,
 					&HOM.Children{
 						Elements: []*HOM.Element{
-							HOM.NewDomElement(&HOM.Style{
+							HOM.NewHOMElement(&HOM.Style{
 								PaddingRight:  5,
 								PaddingLeft:   5,
 								PaddingTop:    2,
