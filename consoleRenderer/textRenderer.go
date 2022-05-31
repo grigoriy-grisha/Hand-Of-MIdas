@@ -45,11 +45,11 @@ func (tr *textRenderer) renderText() {
 		for textIndex, spitText := range SplitText {
 			y := bounding.OffsetTopLeft.Y + textIndex + 1
 
-			//if y >= bounding.OffsetBottomLeft.Y {
-			//	break
-			//}
+			if y >= bounding.OffsetBottomLeft.Y {
+				break
+			}
 
-			printText(bounding.OffsetTopLeft.X+1, y, termbox.ColorWhite, tr.element.Style.BgColor, spitText)
+			printText(bounding.OffsetTopLeft.X+1, y, termbox.ColorWhite, termbox.ColorBlack, spitText)
 		}
 	}
 

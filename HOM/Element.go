@@ -19,10 +19,11 @@ type Bounding struct {
 }
 
 type Element struct {
-	Style    *Style
-	Text     *Text
-	Children *Children
-	Bounding *Bounding
+	Style          *Style
+	Text           *Text
+	Children       *Children
+	Bounding       *Bounding
+	ParentBounding *Bounding
 }
 
 func NewHOMElement(Style *Style, Text *Text, Children *Children) *Element {
@@ -95,10 +96,9 @@ func (element *Element) ComputeElementSize(parentWidth, parentHeight int) {
 }
 
 func (element *Element) getAvailableWidth(parentWidth int) int {
-	return (parentWidth -
+	return parentWidth -
 		element.Style.PaddingLeft -
-		element.Style.PaddingRight) /
-		len(element.Children.Elements)
+		element.Style.PaddingRight
 }
 
 func (element *Element) getAvailableHeight(contentDirection ContentDirection, parentHeight int) int {

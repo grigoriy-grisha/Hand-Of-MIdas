@@ -46,9 +46,7 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 		)
 	}
 
-	maxWidth := normalizedWidth / len(Element.Children.Elements)
-
-	hom.calculateLayout(maxWidth, normalizedHeight, Element.Bounding.OffsetTopLeft, Element)
+	hom.calculateLayout(normalizedWidth, normalizedHeight, Element.Bounding.OffsetTopLeft, Element)
 }
 
 // todo + 1 коэфицент это из-за border
@@ -56,6 +54,7 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 	prevCoords := &Coords{X: coords.X, Y: coords.Y}
 
 	for _, element := range Element.Children.Elements {
+		element.ParentBounding = Element.Bounding
 		element.Style.X = prevCoords.X
 		element.Style.Y = prevCoords.Y
 
@@ -64,7 +63,8 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 		if element.Children != nil {
 			hom.calculateLayout(
 				element.getAvailableWidth(parentWidth),
-				element.getAvailableHeight(Element.Style.ContentDirection, parentHeight),
+				//TODO УЗНАТЬ почему Height работает не правильно
+				parentHeight,
 				element.getCoordsForNextElement(Element.Style.ContentDirection, prevCoords),
 				element,
 			)
