@@ -14,7 +14,7 @@ func (children *Children) GetMaxWidth(contentDirection ContentDirection) int {
 	if contentDirection == HorizontalDirection {
 
 		for index, element := range children.Elements {
-			max += element.Style.Width
+			max += element.Bounding.Width
 
 			if index != 0 {
 				max += element.getBorderOffset()
@@ -22,8 +22,8 @@ func (children *Children) GetMaxWidth(contentDirection ContentDirection) int {
 		}
 	} else {
 		for _, element := range children.Elements {
-			if max < element.Style.Width {
-				max = element.Style.Width
+			if max < element.Bounding.Width {
+				max = element.Bounding.Width
 			}
 		}
 	}
@@ -40,14 +40,14 @@ func (children *Children) GetMaxHeight(contentDirection ContentDirection) int {
 
 	if contentDirection == HorizontalDirection {
 		for _, element := range children.Elements {
-			if max < element.Style.Height {
-				max = element.Style.Height
+			if max < element.Bounding.Height {
+				max = element.Bounding.Height
 
 			}
 		}
 	} else {
 		for index, element := range children.Elements {
-			max += element.Style.Height
+			max += element.Bounding.Height
 
 			if index != 0 {
 				max += element.getBorderOffset()

@@ -14,6 +14,8 @@ type Bounding struct {
 	OffsetBottomLeft  *Coords
 	OffsetTopRight    *Coords
 	OffsetBottomRight *Coords
+	Width             int
+	Height            int
 }
 
 type Element struct {
@@ -29,6 +31,7 @@ func NewHOMElement(Style *Style, Text *Text, Children *Children) *Element {
 
 	return element
 }
+
 func (element *Element) getBorderOffset() int {
 	if element.Style.Border {
 		return 1
@@ -86,8 +89,8 @@ func (element *Element) computeHeight(parentHeight int) int {
 func (element *Element) ComputeElementSize(parentWidth, parentHeight int) {
 	if element.Text != nil {
 		element.Text.CalculateTextHyphens(parentWidth, element.getWidthOffset())
-		element.Style.Width = element.computeWidth(parentWidth)
-		element.Style.Height = element.computeHeight(parentHeight)
+		element.Bounding.Width = element.computeWidth(parentWidth)
+		element.Bounding.Height = element.computeHeight(parentHeight)
 	}
 }
 
@@ -156,11 +159,61 @@ func (element *Element) getHeightWithChildren(contentDirection ContentDirection,
 
 }
 
+func (element *Element) setWidth(parentWidth int) {
+	convertedIntWidth, isInt := element.Style.Width.(int)
+	if isInt {
+		if convertedIntWidth == 0 {
+			element.Bounding.Width = element.getWidthWithChildren(element.Style.ContentDirection, parentWidth)
+			return
+		}
+
+		element.Bounding.Width = convertedIntWidth
+		return
+	}
+
+	convertedStringWidth, err := parsePercentStringToPercentFloat(element.Style.Width)
+
+	if err == nil {
+		if convertedStringWidth == 0 {
+			element.Bounding.Width = element.getWidthWithChildren(element.Style.ContentDirection, parentWidth)
+			return
+		}
+
+		computedWidth := convertedStringWidth * float64(parentWidth)
+		element.Bounding.Width = int(computedWidth)
+	}
+}
+
+func (element *Element) setHeight(parentHeight int) {
+	convertedIntHeight, isInt := element.Style.Height.(int)
+	if isInt {
+		if convertedIntHeight == 0 {
+			element.Bounding.Height = element.getHeightWithChildren(element.Style.ContentDirection, parentHeight)
+			return
+		}
+
+		element.Bounding.Height = convertedIntHeight
+		return
+	}
+
+	convertedStringHeight, err := parsePercentStringToPercentFloat(element.Style.Height)
+
+	if err == nil {
+		if convertedStringHeight == 0 {
+			element.Bounding.Height = element.getHeightWithChildren(element.Style.ContentDirection, parentHeight)
+			return
+		}
+
+		computedWidth := convertedStringHeight * float64(parentHeight)
+		element.Bounding.Height = int(computedWidth)
+	}
+}
+
 func (element *Element) computeBounding() {
 	ClientX := element.Style.X
 	ClientY := element.Style.Y
-	FullClientY := ClientY + element.Style.Height
-	FullClientX := ClientX + element.Style.Width
+	FullClientY := ClientY + element.Bounding.Height
+	FullClientX := ClientX + element.Bounding.Width
 
 	element.Bounding.ClientTopLeft = &Coords{X: ClientX, Y: ClientY}
 	element.Bounding.ClientBottomLeft = &Coords{X: ClientX, Y: FullClientY}
@@ -176,5 +229,4 @@ func (element *Element) computeBounding() {
 	element.Bounding.OffsetBottomLeft = &Coords{X: OffsetX, Y: FullOffsetY}
 	element.Bounding.OffsetTopRight = &Coords{X: FullOffsetX, Y: OffsetY}
 	element.Bounding.OffsetBottomRight = &Coords{X: FullOffsetX, Y: FullOffsetY}
-
 }

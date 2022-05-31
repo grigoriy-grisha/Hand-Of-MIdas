@@ -736,6 +736,7 @@ func main() {
 						PaddingBottom:    2,
 						ContentDirection: HOM.VerticalDirection,
 						Border:           true,
+						Width:            "50%",
 					},
 					nil,
 					&HOM.Children{
