@@ -25,12 +25,12 @@ func (hom *HandOfMidas) SetSizeWindow(width int, height int) {
 func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	hom.Window.Element = Element
 
-	if Element.Style.Width == 0 {
-		Element.Style.Width = hom.Window.Width
+	if Element.Bounding.Width == 0 {
+		Element.Bounding.Width = hom.Window.Width
 	}
 
-	if Element.Style.Height == 0 {
-		Element.Style.Height = hom.Window.Height
+	if Element.Bounding.Height == 0 {
+		Element.Bounding.Height = hom.Window.Height
 	}
 
 	Element.computeBounding()
@@ -69,8 +69,8 @@ func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coord
 				element,
 			)
 
-			element.Style.Width = element.getWidthWithChildren(element.Style.ContentDirection, parentWidth)
-			element.Style.Height = element.getHeightWithChildren(element.Style.ContentDirection, parentHeight)
+			element.setWidth(parentWidth)
+			element.setHeight(parentHeight)
 		}
 
 		element.computeBounding()

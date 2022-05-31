@@ -27,11 +27,11 @@ type Style struct {
 	PaddingBottom    int
 	PaddingLeft      int
 	PaddingRight     int
-	Width            int
-	Height           int
 	Y                int
 	X                int
 	ContentDirection ContentDirection
 	VerticalContent  VerticalContent
 	AlignContent     AlignContent
+	Height           interface{}
+	Width            interface{}
 }

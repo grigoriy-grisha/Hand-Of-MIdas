@@ -49,7 +49,7 @@ func (tr *textRenderer) renderText() {
 			//	break
 			//}
 
-			printText(bounding.OffsetTopLeft.X+1, y, termbox.ColorWhite, termbox.ColorBlack, spitText)
+			printText(bounding.OffsetTopLeft.X+1, y, termbox.ColorWhite, tr.element.Style.BgColor, spitText)
 		}
 	}
 
@@ -258,7 +258,7 @@ func (tr *textRenderer) isCenterCenterAlign() bool {
 }
 
 func (tr *textRenderer) computeCenterX(textLength int) int {
-	return (tr.element.Bounding.ClientTopLeft.X + (tr.element.Style.Width / 2)) - textLength/2
+	return (tr.element.Bounding.ClientTopLeft.X + (tr.element.Bounding.Width / 2)) - textLength/2
 }
 
 func (tr *textRenderer) computeCenterY(rows int) int {
