@@ -19,10 +19,11 @@ type Bounding struct {
 }
 
 type Element struct {
-	Style    *Style
-	Text     *Text
-	Children *Children
-	Bounding *Bounding
+	Style          *Style
+	Text           *Text
+	Children       *Children
+	Bounding       *Bounding
+	ParentBounding *Bounding
 }
 
 func NewHOMElement(Style *Style, Text *Text, Children *Children) *Element {
@@ -50,18 +51,29 @@ func (element *Element) getWidthOffset() int {
 }
 
 func (element *Element) getElementWidth() int {
-	return element.Text.ValueLength +
+	valueLength := 0
+
+	if element.Text != nil {
+		valueLength = element.Text.ValueLength
+	}
+
+	return valueLength +
 		element.Style.PaddingLeft +
 		element.Style.PaddingRight +
 		element.getSizeOffset()
 }
 
 func (element *Element) computeWidth(parentWidth int) int {
+	computedWidth := element.getElementWidth()
+
+	if element.Text == nil {
+		return computedWidth
+	}
+
 	if element.Text.SplitTextLength > 1 {
 		return parentWidth
 	}
 
-	computedWidth := element.getElementWidth()
 	if computedWidth > parentWidth {
 		return parentWidth
 	}
@@ -70,7 +82,13 @@ func (element *Element) computeWidth(parentWidth int) int {
 }
 
 func (element *Element) getElementHeight() int {
-	return element.Text.SplitTextLength +
+	splitTextLength := 0
+
+	if element.Text != nil {
+		splitTextLength = element.Text.SplitTextLength
+	}
+
+	return splitTextLength +
 		element.Style.PaddingTop +
 		element.Style.PaddingBottom +
 		element.getSizeOffset()
@@ -78,6 +96,10 @@ func (element *Element) getElementHeight() int {
 
 func (element *Element) computeHeight(parentHeight int) int {
 	computedHeight := element.getElementHeight()
+
+	if element.Text == nil {
+		return computedHeight
+	}
 
 	if computedHeight > parentHeight {
 		return parentHeight
@@ -89,16 +111,16 @@ func (element *Element) computeHeight(parentHeight int) int {
 func (element *Element) ComputeElementSize(parentWidth, parentHeight int) {
 	if element.Text != nil {
 		element.Text.CalculateTextHyphens(parentWidth, element.getWidthOffset())
-		element.Bounding.Width = element.computeWidth(parentWidth)
-		element.Bounding.Height = element.computeHeight(parentHeight)
 	}
+
+	element.Bounding.Width = element.computeWidth(parentWidth)
+	element.Bounding.Height = element.computeHeight(parentHeight)
 }
 
 func (element *Element) getAvailableWidth(parentWidth int) int {
-	return (parentWidth -
+	return parentWidth -
 		element.Style.PaddingLeft -
-		element.Style.PaddingRight) /
-		len(element.Children.Elements)
+		element.Style.PaddingRight
 }
 
 func (element *Element) getAvailableHeight(contentDirection ContentDirection, parentHeight int) int {
@@ -120,7 +142,22 @@ func (element *Element) getAvailableHeight(contentDirection ContentDirection, pa
 
 }
 
-func (element *Element) getCoordsForNextElement(ContentDirection ContentDirection, prevCoords *Coords) *Coords {
+func (element *Element) getCoordsForNextElement(ContentDirection ContentDirection, AlignContent AlignContent, prevCoords *Coords) *Coords {
+
+	if AlignContent == AlignContentLeft {
+		if ContentDirection == HorizontalDirection {
+			return &Coords{
+				X: prevCoords.X + element.Style.PaddingLeft,
+				Y: prevCoords.Y + element.Style.PaddingTop,
+			}
+		}
+
+		return &Coords{
+			X: prevCoords.X + element.Style.PaddingLeft,
+			Y: prevCoords.Y + element.Style.PaddingBottom,
+		}
+	}
+
 	if ContentDirection == HorizontalDirection {
 		return &Coords{
 			X: prevCoords.X + element.Style.PaddingLeft,
@@ -132,6 +169,7 @@ func (element *Element) getCoordsForNextElement(ContentDirection ContentDirectio
 		X: prevCoords.X + element.Style.PaddingLeft,
 		Y: prevCoords.Y + element.Style.PaddingBottom,
 	}
+
 }
 
 func (element *Element) getWidthWithChildren(contentDirection ContentDirection, parentWidth int) int {
@@ -159,8 +197,16 @@ func (element *Element) getHeightWithChildren(contentDirection ContentDirection,
 
 }
 
+//todo рефакторинг
 func (element *Element) setWidth(parentWidth int) {
+
+	if element.Style.Width == nil {
+		element.Bounding.Width = element.getWidthWithChildren(element.Style.ContentDirection, parentWidth)
+		return
+	}
+
 	convertedIntWidth, isInt := element.Style.Width.(int)
+
 	if isInt {
 		if convertedIntWidth == 0 {
 			element.Bounding.Width = element.getWidthWithChildren(element.Style.ContentDirection, parentWidth)
@@ -185,7 +231,14 @@ func (element *Element) setWidth(parentWidth int) {
 }
 
 func (element *Element) setHeight(parentHeight int) {
+
+	if element.Style.Height == nil {
+		element.Bounding.Height = element.getHeightWithChildren(element.Style.ContentDirection, parentHeight)
+		return
+	}
+
 	convertedIntHeight, isInt := element.Style.Height.(int)
+
 	if isInt {
 		if convertedIntHeight == 0 {
 			element.Bounding.Height = element.getHeightWithChildren(element.Style.ContentDirection, parentHeight)
@@ -229,4 +282,5 @@ func (element *Element) computeBounding() {
 	element.Bounding.OffsetBottomLeft = &Coords{X: OffsetX, Y: FullOffsetY}
 	element.Bounding.OffsetTopRight = &Coords{X: FullOffsetX, Y: OffsetY}
 	element.Bounding.OffsetBottomRight = &Coords{X: FullOffsetX, Y: FullOffsetY}
+
 }

@@ -22,6 +22,36 @@ func (hom *HandOfMidas) SetSizeWindow(width int, height int) {
 	hom.Window.Height = height
 }
 
+func (hom *HandOfMidas) calculateSizes(parentWidth int, parentHeight int, Element *Element) {
+	Element.ComputeElementSize(parentWidth, parentHeight)
+
+	if Element.Children == nil {
+		return
+	}
+
+	for _, element := range Element.Children.Elements {
+
+		if element.Children != nil {
+			availableWidth := element.getAvailableWidth(parentWidth)
+
+			hom.calculateSizes(
+				availableWidth,
+				//TODO УЗНАТЬ почему Height работает не правильно
+				parentHeight,
+				element,
+			)
+		}
+
+		if element.Text != nil {
+			element.ComputeElementSize(parentWidth, parentHeight)
+		}
+
+	}
+
+	Element.setWidth(parentWidth)
+	Element.setHeight(parentHeight)
+}
+
 func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	hom.Window.Element = Element
 
@@ -46,31 +76,32 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 		)
 	}
 
-	maxWidth := normalizedWidth / len(Element.Children.Elements)
-
-	hom.calculateLayout(maxWidth, normalizedHeight, Element.Bounding.OffsetTopLeft, Element)
+	hom.calculateSizes(normalizedWidth, normalizedHeight, Element)
+	hom.calculateLayout(Element.Bounding.OffsetTopLeft, Element)
 }
 
 // todo + 1 коэфицент это из-за border
-func (hom *HandOfMidas) calculateLayout(parentWidth int, parentHeight int, coords *Coords, Element *Element) {
-	prevCoords := &Coords{X: coords.X, Y: coords.Y}
+func (hom *HandOfMidas) calculateLayout(coords *Coords, Element *Element) {
+	var prevCoords *Coords = nil
+
+	if Element.Style.AlignItems == AlignItemsStart {
+		prevCoords = &Coords{X: coords.X, Y: coords.Y}
+	}
+
+	if Element.Style.AlignItems == AlignItemsEnd {
+		prevCoords = &Coords{X: coords.X + Element.Bounding.Width, Y: coords.Y}
+	}
 
 	for _, element := range Element.Children.Elements {
+		element.ParentBounding = Element.Bounding
 		element.Style.X = prevCoords.X
 		element.Style.Y = prevCoords.Y
 
-		element.ComputeElementSize(parentWidth, parentHeight)
-
 		if element.Children != nil {
 			hom.calculateLayout(
-				element.getAvailableWidth(parentWidth),
-				element.getAvailableHeight(Element.Style.ContentDirection, parentHeight),
-				element.getCoordsForNextElement(Element.Style.ContentDirection, prevCoords),
+				element.getCoordsForNextElement(Element.Style.ContentDirection, Element.Style.AlignContent, prevCoords),
 				element,
 			)
-
-			element.setWidth(parentWidth)
-			element.setHeight(parentHeight)
 		}
 
 		element.computeBounding()

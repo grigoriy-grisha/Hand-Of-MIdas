@@ -3,6 +3,13 @@ package HOM
 type AlignContent int8
 type VerticalContent int8
 type ContentDirection int8
+type AlignItems int8
+
+var (
+	AlignItemsStart  AlignItems = 0
+	AlignItemsCenter AlignItems = 1
+	AlignItemsEnd    AlignItems = 2
+)
 
 var (
 	HorizontalDirection ContentDirection = 0
@@ -32,6 +39,7 @@ type Style struct {
 	ContentDirection ContentDirection
 	VerticalContent  VerticalContent
 	AlignContent     AlignContent
+	AlignItems       AlignItems
 	Height           interface{}
 	Width            interface{}
 }
