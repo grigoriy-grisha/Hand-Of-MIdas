@@ -42,7 +42,6 @@ func (children *Children) GetMaxHeight(contentDirection ContentDirection) int {
 		for _, element := range children.Elements {
 			if max < element.Bounding.Height {
 				max = element.Bounding.Height
-
 			}
 		}
 	} else {
