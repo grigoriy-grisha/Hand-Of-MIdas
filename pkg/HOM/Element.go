@@ -24,10 +24,18 @@ type Element struct {
 	Children       *Children
 	Bounding       *Bounding
 	ParentBounding *Bounding
+	OnClick        func(element *Element)
 }
 
-func NewHOMElement(Style *Style, Text *Text, Children *Children) *Element {
-	element := &Element{Style: Style, Text: Text, Children: Children}
+type NewElementParams struct {
+	Style    *Style
+	Text     *Text
+	Children *Children
+	OnClick  func(element *Element)
+}
+
+func NewHOMElement(params NewElementParams) *Element {
+	element := &Element{Style: params.Style, Text: params.Text, Children: params.Children, OnClick: params.OnClick}
 	element.Bounding = &Bounding{}
 
 	return element
@@ -142,22 +150,7 @@ func (element *Element) getAvailableHeight(contentDirection ContentDirection, pa
 
 }
 
-func (element *Element) getCoordsForNextElement(ContentDirection ContentDirection, AlignContent AlignContent, prevCoords *Coords) *Coords {
-
-	if AlignContent == AlignContentLeft {
-		if ContentDirection == HorizontalDirection {
-			return &Coords{
-				X: prevCoords.X + element.Style.PaddingLeft,
-				Y: prevCoords.Y + element.Style.PaddingTop,
-			}
-		}
-
-		return &Coords{
-			X: prevCoords.X + element.Style.PaddingLeft,
-			Y: prevCoords.Y + element.Style.PaddingBottom,
-		}
-	}
-
+func (element *Element) getCoordsForNextElement(ContentDirection ContentDirection, prevCoords *Coords) *Coords {
 	if ContentDirection == HorizontalDirection {
 		return &Coords{
 			X: prevCoords.X + element.Style.PaddingLeft,
@@ -169,7 +162,6 @@ func (element *Element) getCoordsForNextElement(ContentDirection ContentDirectio
 		X: prevCoords.X + element.Style.PaddingLeft,
 		Y: prevCoords.Y + element.Style.PaddingBottom,
 	}
-
 }
 
 func (element *Element) getWidthWithChildren(contentDirection ContentDirection, parentWidth int) int {
