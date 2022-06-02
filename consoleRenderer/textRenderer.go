@@ -1,7 +1,7 @@
 package consoleRenderer
 
 import (
-	"awesomeProject/HOM"
+	"awesomeProject/pkg/HOM"
 	"github.com/nsf/termbox-go"
 )
 

@@ -1,9 +1,9 @@
 package game
 
 import (
-	"awesomeProject/common"
-	"awesomeProject/consoleHelper"
-	"awesomeProject/hero"
+	"awesomeProject/gamee/common"
+	"awesomeProject/gamee/consoleHelper"
+	"awesomeProject/gamee/hero"
 	"fmt"
 	"strconv"
 )

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"awesomeProject/HOM"
-	"awesomeProject/consoleRenderer"
+	"awesomeProject/pkg/HOM"
+	"awesomeProject/pkg/HOMF"
 	"encoding/json"
 	"fmt"
 	"github.com/mattn/go-runewidth"
@@ -715,183 +715,40 @@ var longText = "\nLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet
 var text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero!"
 
 func main() {
-	newHandOfMidas := HOM.NewHandOfMidas(100, 30)
 
-	domElement := HOM.NewHOMElement(
-		&HOM.Style{
-			PaddingRight:     5,
-			PaddingLeft:      5,
-			PaddingTop:       2,
-			PaddingBottom:    2,
-			VerticalContent:  HOM.VerticalContentCenter,
-			AlignContent:     HOM.AlignContentCenter,
-			AlignItems:       HOM.AlignItemsEnd,
-			ContentDirection: HOM.VerticalDirection,
-			Border:           true,
-		}, nil, &HOM.Children{
-			Elements: []*HOM.Element{
-				HOM.NewHOMElement(
-					&HOM.Style{
-						PaddingRight:  5,
-						PaddingLeft:   5,
-						PaddingTop:    2,
-						PaddingBottom: 2,
-						AlignItems:    HOM.AlignItemsEnd,
-						//ContentDirection: HOM.VerticalDirection,
-						Border: true,
-						Width:  "50%",
-					},
-					nil,
-					&HOM.Children{
-						Elements: []*HOM.Element{
-							//HOM.NewHOMElement(&HOM.Style{},
-							//	&HOM.Text{Value: "hello"},
-							//	nil,
-							//),
-							//HOM.NewHOMElement(&HOM.Style{},
-							//	&HOM.Text{Value: "hello"},
-							//	nil,
-							//),
+	homf := HOMF.NewHOMFramework(100, 30)
 
-							HOM.NewHOMElement(&HOM.Style{},
-								&HOM.Text{Value: "hello"},
-								nil,
-							),
-							HOM.NewHOMElement(&HOM.Style{},
-								&HOM.Text{Value: "hello"},
-								nil,
-							),
-							HOM.NewHOMElement(&HOM.Style{},
-								&HOM.Text{Value: "hello"},
-								nil,
-							),
-						},
-					},
-				),
-				//HOM.NewHOMElement(
-				//	&HOM.Style{
-				//		PaddingRight:     5,
-				//		PaddingLeft:      5,
-				//		PaddingTop:       2,
-				//		PaddingBottom:    2,
-				//		Border:           true,
-				//		ContentDirection: HOM.VerticalDirection,
-				//	},
-				//	nil,
-				//	&HOM.Children{
-				//		Elements: []*HOM.Element{
-				//			HOM.NewHOMElement(
-				//				&HOM.Style{
-				//					PaddingRight:  5,
-				//					PaddingLeft:   5,
-				//					PaddingTop:    2,
-				//					PaddingBottom: 2,
-				//					Border:        true,
-				//				},
-				//				nil,
-				//				&HOM.Children{
-				//					Elements: []*HOM.Element{
-				//						HOM.NewHOMElement(&HOM.Style{
-				//							ContentDirection: HOM.VerticalDirection,
-				//						}, nil, &HOM.Children{Elements: []*HOM.Element{
-				//							HOM.NewHOMElement(
-				//								&HOM.Style{},
-				//								nil,
-				//								&HOM.Children{Elements: []*HOM.Element{
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//								}},
-				//							),
-				//							HOM.NewHOMElement(
-				//								&HOM.Style{},
-				//								nil,
-				//								&HOM.Children{Elements: []*HOM.Element{
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//									HOM.NewHOMElement(&HOM.Style{},
-				//										&HOM.Text{Value: "hello"},
-				//										nil,
-				//									),
-				//								}},
-				//							),
-				//						},
-				//						},
-				//						),
-				//					},
-				//				},
-				//			),
-				//			HOM.NewHOMElement(&HOM.Style{
-				//				PaddingRight:  5,
-				//				PaddingLeft:   5,
-				//				PaddingTop:    2,
-				//				PaddingBottom: 2,
-				//			},
-				//				&HOM.Text{Value: "hello world "},
-				//				nil,
-				//			),
-				//		},
-				//	},
-				//),
+	closeHomf := homf.Init()
+	defer closeHomf()
+
+	e := HOM.NewHOMElement(
+		HOM.NewElementParams{
+			Style: &HOM.Style{},
+			Text:  &HOM.Text{Value: "hello"},
+			OnClick: func(element *HOM.Element) {
+				fmt.Print("hello worlds")
 			},
 		},
 	)
 
-	newHandOfMidas.PreprocessTree(domElement)
+	homf.Mount(
+		HOM.NewHOMElement(
+			HOM.NewElementParams{
+				Style: &HOM.Style{
+					PaddingRight:  5,
+					PaddingLeft:   5,
+					PaddingTop:    2,
+					PaddingBottom: 2,
+				},
 
-	printHOMTree(*domElement)
+				Children: &HOM.Children{
+					Elements: []*HOM.Element{e},
+				},
+			},
+		))
 
-	err := termbox.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer termbox.Close()
+	homf.Run()
 
-	consoleRenderer.RenderElement(domElement)
-	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
-	//
-	//termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-	//draw_keyboard()
-	termbox.Flush()
-mainloop:
-	for {
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			switch ev.Key {
-			case termbox.KeyEsc:
-				break mainloop
-			}
-		case termbox.EventMouse:
-			pretty_print_mouse(&ev)
-			termbox.Flush()
-		case termbox.EventError:
-			panic(ev.Err)
-		}
-	}
 	//inputmode := 0
 	//ctrlxpressed := false
 	//loop:

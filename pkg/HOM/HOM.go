@@ -69,28 +69,12 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	normalizedWidth := hom.Window.Width - Element.Style.PaddingLeft - Element.Style.PaddingRight + Element.getSizeOffset()
 	normalizedHeight := hom.Window.Height - Element.Style.PaddingTop - Element.Style.PaddingBottom + Element.getSizeOffset()
 
-	if Element.Text != nil {
-		Element.Text.CalculateTextHyphens(
-			hom.Window.Width,
-			Element.Style.PaddingLeft+Element.Style.PaddingRight+Element.getSizeOffset(),
-		)
-	}
-
 	hom.calculateSizes(normalizedWidth, normalizedHeight, Element)
 	hom.calculateLayout(Element.Bounding.OffsetTopLeft, Element)
 }
 
-// todo + 1 коэфицент это из-за border
 func (hom *HandOfMidas) calculateLayout(coords *Coords, Element *Element) {
-	var prevCoords *Coords = nil
-
-	if Element.Style.AlignItems == AlignItemsStart {
-		prevCoords = &Coords{X: coords.X, Y: coords.Y}
-	}
-
-	if Element.Style.AlignItems == AlignItemsEnd {
-		prevCoords = &Coords{X: coords.X + Element.Bounding.Width, Y: coords.Y}
-	}
+	prevCoords := coords
 
 	for _, element := range Element.Children.Elements {
 		element.ParentBounding = Element.Bounding
@@ -99,7 +83,7 @@ func (hom *HandOfMidas) calculateLayout(coords *Coords, Element *Element) {
 
 		if element.Children != nil {
 			hom.calculateLayout(
-				element.getCoordsForNextElement(Element.Style.ContentDirection, Element.Style.AlignContent, prevCoords),
+				element.getCoordsForNextElement(Element.Style.ContentDirection, prevCoords),
 				element,
 			)
 		}
