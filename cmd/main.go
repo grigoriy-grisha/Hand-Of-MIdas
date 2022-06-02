@@ -726,7 +726,7 @@ func main() {
 			Style: &HOM.Style{},
 			Text:  &HOM.Text{Value: "hello"},
 			OnClick: func(element *HOM.Element) {
-				fmt.Print("hello worlds")
+				//fmt.Print("hello worlds")
 			},
 		},
 	)
