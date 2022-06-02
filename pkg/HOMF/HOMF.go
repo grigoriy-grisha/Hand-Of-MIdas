@@ -38,7 +38,25 @@ func (homf *HOMFramework) Mount(Element *HOM.Element) {
 
 }
 
+var MouseDown termbox.Key = 65509
+var LeftMouseUp termbox.Key = 65512
+
+func (homf *HOMFramework) getDetectClick() func(key termbox.Key, MouseX, MouseY int) {
+	var clickKey termbox.Key = 0
+
+	return func(key termbox.Key, MouseX, MouseY int) {
+		if key == MouseDown {
+			if clickKey == LeftMouseUp {
+				homf.propagateClick(MouseX, MouseY)
+			}
+		}
+
+		clickKey = key
+	}
+}
+
 func (homf *HOMFramework) Run() {
+	detectClick := homf.getDetectClick()
 mainloop:
 	for {
 		switch ev := termbox.PollEvent(); ev.Type {
@@ -48,7 +66,7 @@ mainloop:
 				break mainloop
 			}
 		case termbox.EventMouse:
-			homf.propagateClick(ev.MouseX, ev.MouseY)
+			detectClick(ev.Key, ev.MouseX, ev.MouseY)
 		case termbox.EventError:
 			panic(ev.Err)
 		}
