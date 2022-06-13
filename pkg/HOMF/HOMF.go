@@ -74,20 +74,19 @@ mainloop:
 }
 
 func (homf *HOMFramework) FindElementById(element *HOM.Element, id string) *HOM.Element {
+	if element.ID == id {
+		return element
+	}
 
-	if element.Children != nil {
+	if element.Children == nil {
+		return nil
+	}
 
-		for _, elem := range element.Children.Elements {
+	for _, elem := range element.Children.Elements {
+		el := homf.FindElementById(elem, id)
 
-			if elem.Style.ID == id {
-				return elem
-			}
-
-			el := homf.FindElementById(elem, id)
-
-			if el != nil {
-				return el
-			}
+		if el != nil {
+			return el
 		}
 	}
 
@@ -129,6 +128,7 @@ func (homf *HOMFramework) isInterceptElement(Element *HOM.Element, MouseX, Mouse
 }
 
 func (homf *HOMFramework) Flush() {
+	termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
 	homf.handOfMidas.PreprocessTree(homf.Element)
 
 	consoleRenderer.RenderElement(homf.Element)

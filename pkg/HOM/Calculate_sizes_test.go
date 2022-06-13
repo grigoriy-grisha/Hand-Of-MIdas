@@ -12,7 +12,7 @@ func TestCalculateWidths(t *testing.T) {
 	splitedLongTextLenght := len(splitedLongText)
 
 	t.Run("calculate nil values width", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{}, nil, nil)
+		testElement := NewHOMElement(NewElementParams{})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -21,7 +21,7 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate text width", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{}, &Text{Value: text}, nil)
+		testElement := NewHOMElement(NewElementParams{Text: &Text{Value: text}})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -30,7 +30,7 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate overflow text width", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{}, &Text{Value: longText}, nil)
+		testElement := NewHOMElement(NewElementParams{Text: &Text{Value: longText}})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -39,7 +39,7 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate paddings", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{PaddingLeft: 5, PaddingRight: 5}, nil, nil)
+		testElement := NewHOMElement(NewElementParams{Style: &Style{PaddingLeft: 5, PaddingRight: 5}})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -48,7 +48,7 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate paddings width text", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{PaddingLeft: 5, PaddingRight: 5}, &Text{Value: text}, nil)
+		testElement := NewHOMElement(NewElementParams{Style: &Style{PaddingLeft: 5, PaddingRight: 5}, Text: &Text{Value: text}})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -58,9 +58,10 @@ func TestCalculateWidths(t *testing.T) {
 
 	t.Run("calculate width with children element with text", func(t *testing.T) {
 		testElement := NewHOMElement(
-			&Style{PaddingLeft: 5, PaddingRight: 5},
-			nil,
-			&Children{Elements: []*Element{NewHOMElement(&Style{}, &Text{Value: text}, nil)}},
+			NewElementParams{
+				Style:    &Style{PaddingLeft: 5, PaddingRight: 5},
+				Children: &Children{Elements: []*Element{NewHOMElement(NewElementParams{Text: &Text{Value: text}})}},
+			},
 		)
 		testHOM := NewHandOfMidas(size, size)
 
@@ -71,11 +72,17 @@ func TestCalculateWidths(t *testing.T) {
 
 	t.Run("calculate width with children element text and padding", func(t *testing.T) {
 		testElement := NewHOMElement(
-			&Style{PaddingLeft: 5, PaddingRight: 5},
-			nil,
-			&Children{
-				Elements: []*Element{
-					NewHOMElement(&Style{PaddingLeft: 5, PaddingRight: 5}, &Text{Value: text}, nil),
+			NewElementParams{
+				Style: &Style{PaddingLeft: 5, PaddingRight: 5},
+				Children: &Children{
+					Elements: []*Element{
+						NewHOMElement(
+							NewElementParams{
+								Style: &Style{PaddingLeft: 5, PaddingRight: 5},
+								Text:  &Text{Value: text},
+							},
+						),
+					},
 				},
 			},
 		)
@@ -88,17 +95,22 @@ func TestCalculateWidths(t *testing.T) {
 
 	t.Run("calculate width with more children", func(t *testing.T) {
 		testElement := NewHOMElement(
-			&Style{},
-			nil,
-			&Children{Elements: []*Element{
-				NewHOMElement(&Style{PaddingLeft: 5, PaddingRight: 5}, nil, &Children{
-					Elements: []*Element{
-						NewHOMElement(&Style{PaddingLeft: 5, PaddingRight: 5}, &Text{Value: text}, nil),
-						NewHOMElement(&Style{PaddingLeft: 5, PaddingRight: 5}, &Text{Value: text}, nil),
-						NewHOMElement(&Style{PaddingLeft: 5, PaddingRight: 5}, &Text{Value: text}, nil),
-						NewHOMElement(&Style{}, &Text{Value: text}, nil),
-					},
-				})},
+			NewElementParams{
+				Children: &Children{Elements: []*Element{
+					NewHOMElement(
+						NewElementParams{
+							Style: &Style{PaddingLeft: 5, PaddingRight: 5},
+							Children: &Children{
+								Elements: []*Element{
+									NewHOMElement(NewElementParams{Style: &Style{PaddingLeft: 5, PaddingRight: 5}, Text: &Text{Value: text}}),
+									NewHOMElement(NewElementParams{Style: &Style{PaddingLeft: 5, PaddingRight: 5}, Text: &Text{Value: text}}),
+									NewHOMElement(NewElementParams{Style: &Style{PaddingLeft: 5, PaddingRight: 5}, Text: &Text{Value: text}}),
+									NewHOMElement(NewElementParams{Text: &Text{Value: text}}),
+								},
+							},
+						},
+					)},
+				},
 			},
 		)
 		testHOM := NewHandOfMidas(size, size)
@@ -114,7 +126,7 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate nil values height", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{}, nil, nil)
+		testElement := NewHOMElement(NewElementParams{})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -123,7 +135,7 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate text height", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{}, &Text{Value: text}, nil)
+		testElement := NewHOMElement(NewElementParams{Text: &Text{Value: text}})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -132,7 +144,7 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate long text height", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{}, &Text{Value: longText}, nil)
+		testElement := NewHOMElement(NewElementParams{Text: &Text{Value: text}})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -141,10 +153,12 @@ func TestCalculateWidths(t *testing.T) {
 	})
 
 	t.Run("calculate nil values height width paddings", func(t *testing.T) {
-		testElement := NewHOMElement(&Style{
-			PaddingTop:    5,
-			PaddingBottom: 5,
-		}, nil, nil)
+		testElement := NewHOMElement(
+			NewElementParams{
+				Style: &Style{PaddingTop: 5, PaddingBottom: 5},
+				Text:  &Text{Value: text},
+			},
+		)
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -154,10 +168,13 @@ func TestCalculateWidths(t *testing.T) {
 
 	t.Run("calculate nil values height width paddings", func(t *testing.T) {
 		testElement := NewHOMElement(
-			&Style{
-				PaddingTop:    5,
-				PaddingBottom: 5,
-			}, &Text{Value: text}, nil)
+			NewElementParams{
+				Style: &Style{
+					PaddingTop:    5,
+					PaddingBottom: 5,
+				},
+				Text: &Text{Value: text},
+			})
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)
@@ -167,11 +184,16 @@ func TestCalculateWidths(t *testing.T) {
 
 	t.Run("calculate height with children element text and padding", func(t *testing.T) {
 		testElement := NewHOMElement(
-			&Style{PaddingTop: 5, PaddingBottom: 5},
-			nil,
-			&Children{
-				Elements: []*Element{
-					NewHOMElement(&Style{PaddingTop: 5, PaddingBottom: 5}, &Text{Value: text}, nil),
+			NewElementParams{
+				Style: &Style{PaddingTop: 5, PaddingBottom: 5},
+				Children: &Children{
+					Elements: []*Element{
+						NewHOMElement(
+							NewElementParams{
+								Style: &Style{PaddingTop: 5, PaddingBottom: 5},
+								Text:  &Text{Value: text},
+							}),
+					},
 				},
 			},
 		)
@@ -184,19 +206,26 @@ func TestCalculateWidths(t *testing.T) {
 
 	t.Run("calculate height with more children", func(t *testing.T) {
 		testElement := NewHOMElement(
-			&Style{},
-			nil,
-			&Children{Elements: []*Element{
-				NewHOMElement(&Style{PaddingTop: 5, PaddingBottom: 5}, nil, &Children{
-					Elements: []*Element{
-						NewHOMElement(&Style{PaddingTop: 5, PaddingBottom: 5}, &Text{Value: text}, nil),
-						NewHOMElement(&Style{PaddingTop: 5, PaddingBottom: 5}, &Text{Value: text}, nil),
-						NewHOMElement(&Style{PaddingTop: 5, PaddingBottom: 5}, &Text{Value: text}, nil),
-						NewHOMElement(&Style{}, &Text{Value: text}, nil),
-					},
-				})},
+			NewElementParams{
+				Children: &Children{Elements: []*Element{
+					NewHOMElement(
+						NewElementParams{
+							Style: &Style{PaddingTop: 5, PaddingBottom: 5},
+							Children: &Children{
+								Elements: []*Element{
+									NewHOMElement(NewElementParams{Style: &Style{PaddingTop: 5, PaddingBottom: 5}, Text: &Text{Value: text}}),
+									NewHOMElement(NewElementParams{Style: &Style{PaddingTop: 5, PaddingBottom: 5}, Text: &Text{Value: text}}),
+									NewHOMElement(NewElementParams{Style: &Style{PaddingTop: 5, PaddingBottom: 5}, Text: &Text{Value: text}}),
+									NewHOMElement(NewElementParams{Text: &Text{Value: text}}),
+								},
+							},
+						},
+					),
+				},
+				},
 			},
 		)
+
 		testHOM := NewHandOfMidas(size, size)
 
 		testHOM.calculateSizes(size, size, testElement)

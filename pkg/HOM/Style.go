@@ -36,7 +36,6 @@ type Style struct {
 	PaddingRight     int
 	Y                int
 	X                int
-	ID               string
 	ContentDirection ContentDirection
 	VerticalContent  VerticalContent
 	AlignContent     AlignContent

@@ -55,13 +55,8 @@ func (hom *HandOfMidas) calculateSizes(parentWidth int, parentHeight int, Elemen
 func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 	hom.Window.Element = Element
 
-	if Element.Bounding.Width == 0 {
-		Element.Bounding.Width = hom.Window.Width
-	}
-
-	if Element.Bounding.Height == 0 {
-		Element.Bounding.Height = hom.Window.Height
-	}
+	Element.Bounding.Width = hom.Window.Width
+	Element.Bounding.Height = hom.Window.Height
 
 	Element.computeBounding()
 
