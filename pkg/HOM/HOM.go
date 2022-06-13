@@ -71,6 +71,10 @@ func (hom *HandOfMidas) PreprocessTree(Element *Element) {
 func (hom *HandOfMidas) calculateLayout(coords *Coords, Element *Element) {
 	prevCoords := coords
 
+	if Element.Children == nil {
+		return
+	}
+
 	for _, element := range Element.Children.Elements {
 		element.ParentBounding = Element.Bounding
 		element.Style.X = prevCoords.X

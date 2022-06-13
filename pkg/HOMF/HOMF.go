@@ -34,6 +34,7 @@ func (homf *HOMFramework) Mount(Element *HOM.Element) {
 	consoleRenderer.RenderElement(Element)
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
 
+	//todo ошибку чекнуть
 	termbox.Flush()
 
 }
