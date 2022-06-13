@@ -129,8 +129,13 @@ func (element *Element) ComputeElementSize(parentWidth, parentHeight int) {
 		element.Text.CalculateTextHyphens(parentWidth, element.getWidthOffset())
 	}
 
-	element.Bounding.Width = element.computeWidth(parentWidth)
-	element.Bounding.Height = element.computeHeight(parentHeight)
+	if element.Bounding.Width == 0 {
+		element.Bounding.Width = element.computeWidth(parentWidth)
+	}
+
+	if element.Bounding.Height == 0 {
+		element.Bounding.Height = element.computeHeight(parentHeight)
+	}
 }
 
 func (element *Element) getAvailableWidth(parentWidth int) int {

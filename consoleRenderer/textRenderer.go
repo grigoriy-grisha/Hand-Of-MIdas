@@ -120,7 +120,7 @@ func (tr *textRenderer) renderRightAlignText() {
 	}
 
 	if isCenterVerticalContent(tr.verticalContent) {
-		centerPositionY := tr.computeCenterY(len(SplitText))
+		centerPositionY := tr.computeCenterY(SplitTextLength)
 
 		for textIndex, spitText := range SplitText {
 			y := centerPositionY + textIndex
@@ -183,24 +183,7 @@ func (tr *textRenderer) renderCenterAlignText() {
 
 	}
 
-	if isBottomVerticalContent(tr.verticalContent) {
-
-		for textIndex, splitText := range SplitText {
-			y := bounding.OffsetBottomRight.Y - SplitTextLength + textIndex
-
-			if y <= bounding.OffsetTopLeft.Y {
-				continue
-			}
-
-			centerByX := tr.computeCenterX(len(splitText) - 1)
-
-			for i, textItem := range splitText {
-				termbox.SetCell(centerByX+i, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
-			}
-		}
-	}
-
-	if isBottomVerticalContent(tr.verticalContent) {
+	if isCenterVerticalContent(tr.verticalContent) {
 		centerPositionY := tr.computeCenterY(SplitTextLength - 1)
 
 		for textIndex, spitText := range SplitText {
@@ -221,6 +204,24 @@ func (tr *textRenderer) renderCenterAlignText() {
 			}
 		}
 	}
+
+	if isBottomVerticalContent(tr.verticalContent) {
+
+		for textIndex, splitText := range SplitText {
+			y := bounding.OffsetBottomRight.Y - SplitTextLength + textIndex
+
+			if y <= bounding.OffsetTopLeft.Y {
+				continue
+			}
+
+			centerByX := tr.computeCenterX(len(splitText) - 1)
+
+			for i, textItem := range splitText {
+				termbox.SetCell(centerByX+i, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
+			}
+		}
+	}
+
 }
 
 func (tr *textRenderer) renderText() {
@@ -273,7 +274,7 @@ func isBottomVerticalContent(verticalContent HOM.VerticalContent) bool {
 }
 
 func (tr *textRenderer) computeCenterX(textLength int) int {
-	return (tr.element.Bounding.ClientTopLeft.X + (tr.element.Bounding.Width / 2)) - textLength/2
+	return (tr.element.Bounding.OffsetTopLeft.X + (tr.element.Bounding.Width / 2)) - textLength/2
 }
 
 func (tr *textRenderer) computeCenterY(rows int) int {
