@@ -36,12 +36,14 @@ func printText(x, y int, fg, bg termbox.Attribute, text string) {
 	}
 }
 
-func (tr *textRenderer) renderText() {
-	bounding := tr.element.Bounding
-	SplitText := tr.element.Text.SplitText
-	TextValue := tr.element.Text.Value
+//todo высчитать все это зарание
 
-	if tr.isLeftTopAlign() {
+func (tr *textRenderer) renderLeftAlignText() {
+	SplitText := tr.element.Text.SplitText
+	bounding := tr.element.Bounding
+	SplitTextLength := tr.element.Text.SplitTextLength
+
+	if isTopVerticalContent(tr.verticalContent) {
 		for textIndex, spitText := range SplitText {
 			y := bounding.OffsetTopLeft.Y + textIndex + 1
 
@@ -53,8 +55,8 @@ func (tr *textRenderer) renderText() {
 		}
 	}
 
-	if tr.isCenterLeftAlign() {
-		centerPositionY := tr.computeCenterY(len(SplitText) - 1)
+	if isCenterVerticalContent(tr.verticalContent) {
+		centerPositionY := tr.computeCenterY(SplitTextLength - 1)
 
 		for textIndex, spitText := range SplitText {
 			y := centerPositionY + textIndex
@@ -74,11 +76,10 @@ func (tr *textRenderer) renderText() {
 		}
 	}
 
-	if tr.isLeftBottomAlign() {
-		length := len(SplitText)
+	if isBottomVerticalContent(tr.verticalContent) {
 
 		for textIndex, spitText := range SplitText {
-			y := bounding.OffsetBottomLeft.Y - length + textIndex
+			y := bounding.OffsetBottomLeft.Y - SplitTextLength + textIndex
 
 			if y <= bounding.OffsetTopLeft.Y {
 				continue
@@ -91,8 +92,15 @@ func (tr *textRenderer) renderText() {
 			}
 		}
 	}
+}
 
-	if tr.isRightTopAlign() {
+func (tr *textRenderer) renderRightAlignText() {
+	SplitText := tr.element.Text.SplitText
+	bounding := tr.element.Bounding
+	TextValue := tr.element.Text.Value
+	SplitTextLength := tr.element.Text.SplitTextLength
+
+	if isTopVerticalContent(tr.verticalContent) {
 		for textIndex, spitText := range SplitText {
 			textLength := len(spitText) - 1
 
@@ -111,7 +119,7 @@ func (tr *textRenderer) renderText() {
 		}
 	}
 
-	if tr.isCenterRightAlign() {
+	if isCenterVerticalContent(tr.verticalContent) {
 		centerPositionY := tr.computeCenterY(len(SplitText))
 
 		for textIndex, spitText := range SplitText {
@@ -134,12 +142,10 @@ func (tr *textRenderer) renderText() {
 		}
 	}
 
-	if tr.isRightBottomAlign() {
-		length := len(SplitText)
-
+	if isBottomVerticalContent(tr.verticalContent) {
 		for textIndex, spitText := range SplitText {
 
-			y := bounding.OffsetBottomRight.Y - length + textIndex
+			y := bounding.OffsetBottomRight.Y - SplitTextLength + textIndex
 
 			if y <= bounding.OffsetTopLeft.Y {
 				continue
@@ -153,8 +159,14 @@ func (tr *textRenderer) renderText() {
 			}
 		}
 	}
+}
 
-	if tr.isCenterTopAlign() {
+func (tr *textRenderer) renderCenterAlignText() {
+	SplitText := tr.element.Text.SplitText
+	bounding := tr.element.Bounding
+	SplitTextLength := tr.element.Text.SplitTextLength
+
+	if isTopVerticalContent(tr.verticalContent) {
 		for textIndex, splitText := range SplitText {
 			y := bounding.OffsetTopLeft.Y + 1 + textIndex
 
@@ -171,11 +183,10 @@ func (tr *textRenderer) renderText() {
 
 	}
 
-	if tr.isCenterBottomAlign() {
-		length := len(SplitText)
+	if isBottomVerticalContent(tr.verticalContent) {
 
 		for textIndex, splitText := range SplitText {
-			y := bounding.OffsetBottomRight.Y - length + textIndex
+			y := bounding.OffsetBottomRight.Y - SplitTextLength + textIndex
 
 			if y <= bounding.OffsetTopLeft.Y {
 				continue
@@ -189,8 +200,8 @@ func (tr *textRenderer) renderText() {
 		}
 	}
 
-	if tr.isCenterCenterAlign() {
-		centerPositionY := tr.computeCenterY(len(SplitText) - 1)
+	if isBottomVerticalContent(tr.verticalContent) {
+		centerPositionY := tr.computeCenterY(SplitTextLength - 1)
 
 		for textIndex, spitText := range SplitText {
 			y := centerPositionY + textIndex
@@ -209,8 +220,25 @@ func (tr *textRenderer) renderText() {
 				termbox.SetCell(startPosition+i, y, textItem, termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
-
 	}
+}
+
+func (tr *textRenderer) renderText() {
+	if isLeftAlignContent(tr.alignContent) {
+		tr.renderLeftAlignText()
+		return
+	}
+
+	if isRightAlignContent(tr.alignContent) {
+		tr.renderRightAlignText()
+		return
+	}
+
+	if isCenterAlignContent(tr.alignContent) {
+		tr.renderCenterAlignText()
+		return
+	}
+
 }
 
 func TextIsNotEmpty(text *HOM.Text) bool {
@@ -220,41 +248,28 @@ func TextIsNotEmpty(text *HOM.Text) bool {
 	return len(text.Value) != 0
 }
 
-// todo заменить назвение center на middle чтобы не путаться
-func (tr *textRenderer) isLeftTopAlign() bool {
-	return tr.alignContent == HOM.AlignContentLeft && tr.verticalContent == HOM.VerticalContentTop
+func isLeftAlignContent(alignContent HOM.AlignContent) bool {
+	return alignContent == HOM.AlignContentLeft
 }
 
-func (tr *textRenderer) isCenterLeftAlign() bool {
-	return tr.alignContent == HOM.AlignContentLeft && tr.verticalContent == HOM.VerticalContentCenter
+func isRightAlignContent(alignContent HOM.AlignContent) bool {
+	return alignContent == HOM.AlignContentRight
 }
 
-func (tr *textRenderer) isRightTopAlign() bool {
-	return tr.alignContent == HOM.AlignContentRight && tr.verticalContent == HOM.VerticalContentTop
+func isCenterAlignContent(alignContent HOM.AlignContent) bool {
+	return alignContent == HOM.AlignContentCenter
 }
 
-func (tr *textRenderer) isLeftBottomAlign() bool {
-	return tr.alignContent == HOM.AlignContentLeft && tr.verticalContent == HOM.VerticalContentBottom
+func isTopVerticalContent(verticalContent HOM.VerticalContent) bool {
+	return verticalContent == HOM.VerticalContentTop
 }
 
-func (tr *textRenderer) isCenterRightAlign() bool {
-	return tr.alignContent == HOM.AlignContentRight && tr.verticalContent == HOM.VerticalContentCenter
+func isCenterVerticalContent(verticalContent HOM.VerticalContent) bool {
+	return verticalContent == HOM.VerticalContentCenter
 }
 
-func (tr *textRenderer) isRightBottomAlign() bool {
-	return tr.alignContent == HOM.AlignContentRight && tr.verticalContent == HOM.VerticalContentBottom
-}
-
-func (tr *textRenderer) isCenterTopAlign() bool {
-	return tr.alignContent == HOM.AlignContentCenter && tr.verticalContent == HOM.VerticalContentTop
-}
-
-func (tr *textRenderer) isCenterBottomAlign() bool {
-	return tr.alignContent == HOM.AlignContentCenter && tr.verticalContent == HOM.VerticalContentBottom
-}
-
-func (tr *textRenderer) isCenterCenterAlign() bool {
-	return tr.alignContent == HOM.AlignContentCenter && tr.verticalContent == HOM.VerticalContentCenter
+func isBottomVerticalContent(verticalContent HOM.VerticalContent) bool {
+	return verticalContent == HOM.VerticalContentBottom
 }
 
 func (tr *textRenderer) computeCenterX(textLength int) int {
