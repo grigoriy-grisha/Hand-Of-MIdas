@@ -5,6 +5,8 @@ import (
 	"awesomeProject/pkg/HOMF"
 )
 
+var longText = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quosLorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! 	Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero! 	Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet ducimus inventore\nipsam obcaecati porro quas quia quos, saepe sapiente vero!"
+
 func main() {
 	homf := HOMF.NewHOMFramework(100, 30)
 
@@ -16,11 +18,11 @@ func main() {
 			HOM.NewElementParams{
 				Style: &HOM.Style{
 					VerticalContent: HOM.VerticalContentBottom,
-					AlignContent:    HOM.AlignContentCenter,
+					AlignContent:    HOM.AlignContentLeft,
 					PaddingRight:    1,
 					Border:          true,
 				},
-				Text: &HOM.Text{Value: "hello"},
+				Text: &HOM.Text{Value: "hello world"},
 			}))
 
 	homf.Run()
