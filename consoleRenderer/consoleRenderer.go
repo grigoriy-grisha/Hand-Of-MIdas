@@ -33,28 +33,13 @@ func drawBorder(element *HOM.Element) {
 		termbox.SetCell(i, bounding.ClientTopLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
 		termbox.SetCell(i, bounding.ClientBottomLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
 	}
-
-	selectCell(bounding.OffsetTopLeft, borderTopLeft)
-	selectCell(bounding.OffsetBottomLeft, borderBottomLeft)
-	selectCell(bounding.OffsetTopRight, borderTopRight)
-	selectCell(bounding.OffsetBottomRight, borderBottomRight)
-
-	for i := bounding.OffsetTopLeft.Y + 1; i < bounding.OffsetBottomLeft.Y; i++ {
-		termbox.SetCell(bounding.OffsetTopLeft.X, i, borderHorizontal, termbox.ColorWhite, termbox.ColorBlack)
-		termbox.SetCell(bounding.OffsetBottomRight.X, i, borderHorizontal, termbox.ColorWhite, termbox.ColorBlack)
-	}
-
-	for i := bounding.OffsetTopLeft.X + 1; i < bounding.OffsetBottomRight.X; i++ {
-		termbox.SetCell(i, bounding.OffsetTopLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
-		termbox.SetCell(i, bounding.OffsetBottomLeft.Y, borderVertical, termbox.ColorWhite, termbox.ColorBlack)
-	}
 }
 
 func RenderElement(element *HOM.Element) {
 
-	//if element.Style.Border {
-	drawBorder(element)
-	//}
+	if element.Style.Border {
+		drawBorder(element)
+	}
 
 	if TextIsNotEmpty(element.Text) {
 		NewTextRenderer(

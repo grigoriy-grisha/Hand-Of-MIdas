@@ -19,6 +19,7 @@ type Bounding struct {
 }
 
 type Element struct {
+	ID             string
 	Style          *Style
 	Text           *Text
 	Children       *Children
@@ -28,6 +29,7 @@ type Element struct {
 }
 
 type NewElementParams struct {
+	ID       string
 	Style    *Style
 	Text     *Text
 	Children *Children
@@ -35,7 +37,13 @@ type NewElementParams struct {
 }
 
 func NewHOMElement(params NewElementParams) *Element {
-	element := &Element{Style: params.Style, Text: params.Text, Children: params.Children, OnClick: params.OnClick}
+	style := params.Style
+
+	if params.Style == nil {
+		style = &Style{}
+	}
+
+	element := &Element{ID: params.ID, Style: style, Text: params.Text, Children: params.Children, OnClick: params.OnClick}
 	element.Bounding = &Bounding{}
 
 	return element
