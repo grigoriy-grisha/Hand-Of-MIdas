@@ -16,7 +16,6 @@ func NewHOMFramework(width int, height int) *HOMFramework {
 }
 
 func (homf *HOMFramework) Init() func() {
-
 	err := termbox.Init()
 	if err != nil {
 		panic(err)

@@ -17,8 +17,8 @@ func main() {
 		HOM.NewHOMElement(
 			HOM.NewElementParams{
 				Style: &HOM.Style{
-					VerticalContent: HOM.VerticalContentBottom,
-					AlignContent:    HOM.AlignContentLeft,
+					VerticalContent: HOM.VerticalContentTop,
+					AlignContent:    HOM.AlignContentCenter,
 					PaddingRight:    1,
 					Border:          true,
 				},
