@@ -239,7 +239,7 @@ func isBottomVerticalContent(verticalContent HOM.VerticalContent) bool {
 }
 
 func (tr *textRenderer) computeCenterX(textLength int) int {
-	return (tr.element.Bounding.OffsetTopLeft.X + (tr.element.Bounding.Width / 2)) - textLength/2
+	return (tr.element.Bounding.OffsetTopLeft.X + ((tr.element.Bounding.Width - tr.element.GetWidthOffset()) / 2)) - textLength/2
 }
 
 func (tr *textRenderer) computeCenterY(rows int) int {

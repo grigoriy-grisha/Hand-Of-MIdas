@@ -30,20 +30,15 @@ func (hom *HandOfMidas) calculateSizes(parentWidth int, parentHeight int, Elemen
 	}
 
 	for _, element := range Element.Children.Elements {
+		element.ComputeElementSize(parentWidth, parentHeight)
 
 		if element.Children != nil {
-			availableWidth := element.getAvailableWidth(parentWidth)
-
 			hom.calculateSizes(
-				availableWidth,
+				element.getAvailableWidth(parentWidth),
 				//TODO УЗНАТЬ почему Height работает не правильно или правильно ((
 				parentHeight,
 				element,
 			)
-		}
-
-		if element.Text != nil {
-			element.ComputeElementSize(parentWidth, parentHeight)
 		}
 
 	}

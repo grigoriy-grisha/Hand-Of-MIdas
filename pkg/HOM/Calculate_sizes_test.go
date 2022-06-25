@@ -17,7 +17,7 @@ func TestCalculateWidths(t *testing.T) {
 
 		testHOM.calculateSizes(size, size, testElement)
 
-		assert(t, testElement.Bounding.Width, testElement.getWidthOffset())
+		assert(t, testElement.Bounding.Width, testElement.GetWidthOffset())
 	})
 
 	t.Run("calculate text width", func(t *testing.T) {
