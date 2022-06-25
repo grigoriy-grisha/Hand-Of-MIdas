@@ -1,4 +1,4 @@
-package consoleRenderer
+package HOMR
 
 import "github.com/nsf/termbox-go"
 

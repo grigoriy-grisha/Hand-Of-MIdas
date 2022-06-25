@@ -1,4 +1,4 @@
-package consoleRenderer
+package HOMR
 
 import (
 	"awesomeProject/pkg/HOM"
