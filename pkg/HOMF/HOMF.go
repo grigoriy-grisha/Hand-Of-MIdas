@@ -1,9 +1,10 @@
 package HOMF
 
 import (
-	"awesomeProject/consoleRenderer"
 	"awesomeProject/pkg/HOM"
+	"awesomeProject/pkg/consoleRenderer"
 	"github.com/nsf/termbox-go"
+	"log"
 )
 
 type HOMFramework struct {
@@ -33,15 +34,18 @@ func (homf *HOMFramework) Mount(Element *HOM.Element) {
 	consoleRenderer.RenderElement(Element)
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
 
-	//todo ошибку чекнуть
-	termbox.Flush()
+	err := termbox.Flush()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
 
 var MouseDown termbox.Key = 65509
 var LeftMouseUp termbox.Key = 65512
 
-func (homf *HOMFramework) getDetectClick() func(key termbox.Key, MouseX, MouseY int) {
+func (homf *HOMFramework) GetDetectClick() func(key termbox.Key, MouseX, MouseY int) {
 	var clickKey termbox.Key = 0
 
 	return func(key termbox.Key, MouseX, MouseY int) {
@@ -56,7 +60,7 @@ func (homf *HOMFramework) getDetectClick() func(key termbox.Key, MouseX, MouseY 
 }
 
 func (homf *HOMFramework) Run() {
-	detectClick := homf.getDetectClick()
+	detectClick := homf.GetDetectClick()
 mainloop:
 	for {
 		switch ev := termbox.PollEvent(); ev.Type {
@@ -66,6 +70,7 @@ mainloop:
 				break mainloop
 			}
 		case termbox.EventMouse:
+
 			detectClick(ev.Key, ev.MouseX, ev.MouseY)
 		case termbox.EventError:
 			panic(ev.Err)
@@ -98,14 +103,14 @@ func (homf *HOMFramework) propagateClick(MouseX, MouseY int) {
 }
 
 func (homf *HOMFramework) propagateClickRecursive(Element *HOM.Element, MouseX, MouseY int) {
+	if homf.isInterceptElement(Element, MouseX, MouseY) {
+		if Element.OnClick != nil {
+			Element.OnClick(Element)
+		}
+	}
 
 	if Element.Children != nil {
 		for _, elem := range Element.Children.Elements {
-			if homf.isInterceptElement(elem, MouseX, MouseY) {
-				if elem.OnClick != nil {
-					elem.OnClick(elem)
-				}
-			}
 
 			homf.propagateClickRecursive(elem, MouseX, MouseY)
 		}
@@ -128,9 +133,12 @@ func (homf *HOMFramework) isInterceptElement(Element *HOM.Element, MouseX, Mouse
 }
 
 func (homf *HOMFramework) Flush() {
-	termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
-	homf.handOfMidas.PreprocessTree(homf.Element)
+	err := termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
+	if err != nil {
+		return
+	}
 
+	homf.handOfMidas.PreprocessTree(homf.Element)
 	consoleRenderer.RenderElement(homf.Element)
 
 	termbox.Flush()

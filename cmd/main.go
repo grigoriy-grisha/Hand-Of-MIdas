@@ -13,17 +13,22 @@ func main() {
 	closeHomf := homf.Init()
 	defer closeHomf()
 
-	homf.Mount(
-		HOM.NewHOMElement(
-			HOM.NewElementParams{
-				Style: &HOM.Style{
-					VerticalContent: HOM.VerticalContentTop,
-					AlignContent:    HOM.AlignContentCenter,
-					PaddingRight:    1,
-					Border:          true,
-				},
-				Text: &HOM.Text{Value: "hello world"},
-			}))
+	app := HOM.NewHOMElement(
+		HOM.NewElementParams{
+			Style: &HOM.Style{
+				VerticalContent: HOM.VerticalContentTop,
+				AlignContent:    HOM.AlignContentCenter,
+				PaddingRight:    1,
+				Border:          true,
+			},
+			Text: &HOM.Text{Value: "hello world"},
+			OnClick: func(element *HOM.Element) {
+				element.Text.Value = "hello"
+				homf.Flush()
+			},
+		})
+
+	homf.Mount(app)
 
 	homf.Run()
 
