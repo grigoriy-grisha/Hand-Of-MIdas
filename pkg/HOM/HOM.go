@@ -36,7 +36,7 @@ func (hom *HandOfMidas) calculateSizes(parentWidth int, parentHeight int, Elemen
 
 			hom.calculateSizes(
 				availableWidth,
-				//TODO УЗНАТЬ почему Height работает не правильно
+				//TODO УЗНАТЬ почему Height работает не правильно или правильно ((
 				parentHeight,
 				element,
 			)
