@@ -2,7 +2,7 @@ package HOMF
 
 import (
 	"awesomeProject/pkg/HOM"
-	"awesomeProject/pkg/consoleRenderer"
+	"awesomeProject/pkg/HOMR"
 	"github.com/nsf/termbox-go"
 	"log"
 )
@@ -31,7 +31,7 @@ func (homf *HOMFramework) Mount(Element *HOM.Element) {
 	homf.Element = Element
 	homf.handOfMidas.PreprocessTree(Element)
 
-	consoleRenderer.RenderElement(Element)
+	HOMR.RenderElement(Element)
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
 
 	err := termbox.Flush()
@@ -140,7 +140,7 @@ func (homf *HOMFramework) Flush() {
 	}
 
 	homf.handOfMidas.PreprocessTree(homf.Element)
-	consoleRenderer.RenderElement(homf.Element)
+	HOMR.RenderElement(homf.Element)
 
 	termbox.Flush()
 }
