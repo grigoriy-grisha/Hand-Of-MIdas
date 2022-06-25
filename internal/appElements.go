@@ -2,41 +2,34 @@ package internal
 
 import "awesomeProject/pkg/HOM"
 
-//
-//import "awesomeProject/pkg/HOM"
-//
-
 var AppElements = HOM.NewHOMElement(
 	HOM.NewElementParams{
 		Style: &HOM.Style{
-			PaddingRight:    5,
-			PaddingLeft:     5,
-			PaddingTop:      2,
-			PaddingBottom:   2,
-			VerticalContent: HOM.VerticalContentCenter,
-			AlignContent:    HOM.AlignContentCenter,
-			AlignItems:      HOM.AlignItemsEnd,
-			Border:          true,
+			PaddingRight:     5,
+			PaddingLeft:      5,
+			PaddingTop:       2,
+			PaddingBottom:    2,
+			VerticalContent:  HOM.VerticalContentCenter,
+			AlignContent:     HOM.AlignContentCenter,
+			AlignItems:       HOM.AlignItemsEnd,
+			ContentDirection: HOM.VerticalDirection,
+			Border:           true,
 		},
 		Children: &HOM.Children{
 			Elements: []*HOM.Element{
 				HOM.NewHOMElement(
 					HOM.NewElementParams{
 						Style: &HOM.Style{
-							PaddingRight:  5,
-							PaddingLeft:   5,
-							PaddingTop:    2,
-							PaddingBottom: 2,
-							Border:        true,
-							Width:         "50%",
+							PaddingRight:    5,
+							PaddingLeft:     5,
+							PaddingTop:      2,
+							PaddingBottom:   2,
+							Border:          true,
+							Width:           "100%",
+							AlignContent:    HOM.AlignContentCenter,
+							VerticalContent: HOM.VerticalContentCenter,
 						},
-						Children: &HOM.Children{
-							Elements: []*HOM.Element{
-								HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "hello"}}),
-								HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "hello"}}),
-								HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "hello"}}),
-							},
-						},
+						Text: &HOM.Text{Value: "Hello from the most simple and crippled console renderer in the world!"},
 					},
 				),
 				HOM.NewHOMElement(
@@ -81,10 +74,7 @@ var AppElements = HOM.NewHOMElement(
 															HOM.NewHOMElement(
 																HOM.NewElementParams{
 																	Children: &HOM.Children{Elements: []*HOM.Element{
-																		HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "hello"}}),
-																		HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "hello"}}),
-																		HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "hello"}}),
-																		HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "hello"}}),
+																		HOM.NewHOMElement(HOM.NewElementParams{Text: &HOM.Text{Value: "Some Text"}}),
 																	}},
 																},
 															),
@@ -104,7 +94,10 @@ var AppElements = HOM.NewHOMElement(
 											PaddingTop:    2,
 											PaddingBottom: 2,
 										},
-										Text: &HOM.Text{Value: "hello world "},
+										Text: &HOM.Text{Value: "Нажми на меня и я изменю текст"},
+										OnClick: func(element *HOM.Element) {
+											element.Text.Value = "Текст изменен"
+										},
 									},
 								),
 							},

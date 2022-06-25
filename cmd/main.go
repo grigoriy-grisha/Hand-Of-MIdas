@@ -1,7 +1,7 @@
 package main
 
 import (
-	"awesomeProject/pkg/HOM"
+	"awesomeProject/internal"
 	"awesomeProject/pkg/HOMF"
 )
 
@@ -13,22 +13,7 @@ func main() {
 	closeHomf := homf.Init()
 	defer closeHomf()
 
-	app := HOM.NewHOMElement(
-		HOM.NewElementParams{
-			Style: &HOM.Style{
-				VerticalContent: HOM.VerticalContentTop,
-				AlignContent:    HOM.AlignContentCenter,
-				PaddingRight:    1,
-				Border:          true,
-			},
-			Text: &HOM.Text{Value: "hello world"},
-			OnClick: func(element *HOM.Element) {
-				element.Text.Value = "hello"
-				homf.Flush()
-			},
-		})
-
-	homf.Mount(app)
+	homf.Mount(internal.AppElements)
 
 	homf.Run()
 

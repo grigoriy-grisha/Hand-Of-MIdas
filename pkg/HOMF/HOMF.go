@@ -52,6 +52,7 @@ func (homf *HOMFramework) GetDetectClick() func(key termbox.Key, MouseX, MouseY 
 		if key == MouseDown {
 			if clickKey == LeftMouseUp {
 				homf.propagateClick(MouseX, MouseY)
+				homf.Flush()
 			}
 		}
 

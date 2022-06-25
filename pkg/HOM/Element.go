@@ -60,7 +60,7 @@ func (element *Element) getSizeOffset() int {
 	return 1
 }
 
-func (element *Element) getWidthOffset() int {
+func (element *Element) GetWidthOffset() int {
 	return element.Style.PaddingLeft +
 		element.Style.PaddingRight +
 		element.getSizeOffset()
@@ -126,16 +126,25 @@ func (element *Element) computeHeight(parentHeight int) int {
 
 func (element *Element) ComputeElementSize(parentWidth, parentHeight int) {
 	if element.Text != nil {
-		element.Text.CalculateTextHyphens(parentWidth, element.getWidthOffset())
+		element.Text.CalculateTextHyphens(parentWidth, element.GetWidthOffset())
 	}
 
-	if element.Bounding.Width == 0 {
+	if element.Style.Width != nil {
+		element.setWidth(parentWidth)
+		if element.Text != nil {
+			element.Text.CalculateTextHyphens(element.Bounding.Width, element.GetWidthOffset())
+		}
+
+	} else if element.Bounding.Width == 0 {
 		element.Bounding.Width = element.computeWidth(parentWidth)
 	}
 
-	if element.Bounding.Height == 0 {
+	if element.Style.Height != nil {
+		element.setHeight(parentWidth)
+	} else if element.Bounding.Height == 0 {
 		element.Bounding.Height = element.computeHeight(parentHeight)
 	}
+
 }
 
 func (element *Element) getAvailableWidth(parentWidth int) int {
